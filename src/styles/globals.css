@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+:root {
+  /* Soft Warm Neutral Theme Colors */
+  --warm-cream: #faf8f5;
+  --soft-beige: #f5f1eb;
+  --warm-gray: #8b7355;
+  --deep-brown: #5d4e37;
+  --warm-white: #fefcf9;
+  --soft-taupe: #d4c4a8;
+  --warm-sand: #e8dcc0;
+  --muted-amber: #d4a574;
+  --soft-orange: #e6b17a;
+  --warm-text: #4a3c2a;
+  --text-secondary: #6b5b47;
+  --text-muted: #8b7d6b;
+  --border-color: #d4c4a8;
+  --card-bg: #fefcf9;
+  --card-hover: #f5f1eb;
+  
+  /* Shadows - Soft and warm */
+  --soft-shadow: 0 2px 8px rgba(139, 115, 85, 0.1);
+  --soft-shadow-hover: 0 4px 16px rgba(139, 115, 85, 0.15);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+@theme inline {
+  --color-background: var(--warm-cream);
+  --color-foreground: var(--warm-text);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, var(--warm-cream) 0%, var(--soft-beige) 100%);
+  color: var(--warm-text);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--soft-beige);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--soft-taupe);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--warm-sand);
+}
+
+/* Warm text effect */
+.warm-text {
+  color: var(--deep-brown);
+  font-weight: 600;
+}
+
+.warm-text-accent {
+  color: var(--muted-amber);
+  font-weight: 600;
+}
+
+/* Soft border effect */
+.soft-border {
+  border: 1px solid var(--border-color);
+  box-shadow: var(--soft-shadow);
+}
+
+.soft-border-hover:hover {
+  box-shadow: var(--soft-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Glow effect for buttons - warm and soft */
+.glow-on-hover:hover {
+  box-shadow: var(--soft-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--muted-amber) 0%, var(--soft-orange) 100%);
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, var(--warm-sand) 0%, var(--soft-taupe) 100%);
+}
+
+/* Card styling */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--muted-amber);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Button styling */
+.btn-primary {
+  background: linear-gradient(135deg, #c19a6b 0%, #d4a574 100%);
+  color: var(--warm-white);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 115, 85, 0.25);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--soft-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--warm-text);
+  border: 2px solid #8b7355;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 115, 85, 0.15);
+}
+
+.btn-secondary:hover {
+  background: var(--warm-gray);
+  color: var(--warm-white);
+  box-shadow: var(--soft-shadow);
+}
+
+/* Input styling */
+.input-field {
+  background: var(--warm-white);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--warm-text);
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--muted-amber);
+  box-shadow: var(--soft-shadow);
+}
+
+/* Animation keyframes - soft and warm */
+@keyframes soft-pulse {
+  0%, 100% {
+    box-shadow: var(--soft-shadow);
+  }
+  50% {
+    box-shadow: var(--soft-shadow-hover);
+  }
+}
+
+.soft-pulse {
+  animation: soft-pulse 3s infinite;
+}
