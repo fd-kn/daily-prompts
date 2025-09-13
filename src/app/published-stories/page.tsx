@@ -76,7 +76,7 @@ export default function PublishedStories() {
       
       <h3 className="font-semibold text-warm-text mb-2 line-clamp-2">
         {story.title || story.story.substring(0, 50) + '...'}
-      </h3>
+            </h3>
       
       <p className="text-text-secondary text-sm mb-3 line-clamp-3 flex-grow">
         {story.story}
@@ -85,8 +85,8 @@ export default function PublishedStories() {
       <div className="flex items-center justify-between text-xs text-text-muted mb-3">
         <span>{story.createdAt.toLocaleDateString()}</span>
         <span>{story.story.split(/\s+/).length} words</span>
-      </div>
-      
+          </div>
+          
       <div className="flex items-center justify-between mt-auto">
         <span className="text-sm text-text-secondary">
           Published Story
@@ -118,7 +118,7 @@ export default function PublishedStories() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <motion.div
+        <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
@@ -161,11 +161,11 @@ export default function PublishedStories() {
               <h3 className="text-xl font-semibold text-warm-text mb-2">No published stories yet</h3>
               <p className="text-text-secondary mb-4">
                 Be the first to publish a story and share it with the community!
-              </p>
+            </p>
               <Link href="/write-story" className="btn-primary glow-on-hover">
                 Write Your First Story
               </Link>
-            </motion.div>
+          </motion.div>
           )}
         </motion.div>
       </div>

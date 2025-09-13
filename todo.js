@@ -2,10 +2,14 @@
 
 //* Forget issues for now! Just share it and see what happens. Just do the below tasks:
 
-//! Deploy to Github
+// Deploy to Github
+//! Write your own prompts
 //! Name for app
-//! Add real special modes
-//! Disable memberships for now
+//! Mobile view !!! - few more pages
+//! Check logged out journey
+//! Delete unnecessary pages
+// Add real special modes
+// Disable memberships for now
 //! Deploy on vercel
 
 

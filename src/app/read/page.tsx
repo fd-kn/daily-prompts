@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
-
-
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
@@ -38,8 +36,6 @@ export default function ReadPage() {
 
     return () => unsubscribe();
   }, []);
-
-  // No need to handle section parameters since we only show public stories
 
   const loadStories = async () => {
     try {
@@ -76,8 +72,6 @@ export default function ReadPage() {
       setLoading(false);
     }
   };
-
-  // Removed handleDeleteStory and handleTogglePublish since we only show public stories
 
   const getModeLabel = (competitionId: string) => {
     switch (competitionId) {
@@ -145,27 +139,29 @@ export default function ReadPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-4 sm:space-y-6"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-warm-text mb-2">📚 Read Stories</h1>
-              <p className="text-text-secondary">Discover amazing stories from the community</p>
-            </div>
+          {/* Back Button - Mobile: Top left, Desktop: Top right */}
+          <div className="flex justify-start sm:justify-end">
             <Link href="/">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-secondary glow-on-hover"
+                className="btn-secondary glow-on-hover text-sm sm:text-base py-2 px-4"
               >
                 ← Back to Home
               </motion.button>
             </Link>
+          </div>
+
+          {/* Header - Centered on mobile, left-aligned on desktop */}
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">📚 Read Stories</h1>
+            <p className="text-sm sm:text-base text-text-secondary">Discover amazing stories from the community</p>
           </div>
 
           {/* Public Stories Section - Now the main content */}
@@ -174,61 +170,63 @@ export default function ReadPage() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 bg-card p-4 rounded-lg">
-              <div>
-                <label className="block text-sm font-medium text-warm-text mb-1">Date</label>
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="bg-background border border-border-color rounded-lg px-3 py-2 text-warm-text"
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="week">Past Week</option>
-                  <option value="month">Past Month</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-warm-text mb-1">Mode</label>
-                <select
-                  value={modeFilter}
-                  onChange={(e) => setModeFilter(e.target.value)}
-                  className="bg-background border border-border-color rounded-lg px-3 py-2 text-warm-text"
-                >
-                  <option value="all">All Modes</option>
-                  <option value="daily">Daily Challenge</option>
-                  <option value="competition">Competition</option>
-                  <option value="special">Special Modes</option>
-                </select>
+            {/* Filters - Mobile responsive */}
+            <div className="bg-card p-3 sm:p-4 rounded-lg">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-warm-text mb-1">📅 Date</label>
+                  <select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full bg-background border border-border-color rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-warm-text text-sm sm:text-base"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="week">Past Week</option>
+                    <option value="month">Past Month</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-warm-text mb-1">🎯 Mode</label>
+                  <select
+                    value={modeFilter}
+                    onChange={(e) => setModeFilter(e.target.value)}
+                    className="w-full bg-background border border-border-color rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-warm-text text-sm sm:text-base"
+                  >
+                    <option value="all">All Modes</option>
+                    <option value="daily">Daily Challenge</option>
+                    <option value="competition">Competition</option>
+                    <option value="special">Special Modes</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            {/* Stories Grid */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {/* Stories Grid - Mobile responsive */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredPublicStories.map((story) => (
                 <motion.div
                   key={story.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-card rounded-lg p-4 shadow-lg border border-border-color flex flex-col h-full"
+                  className="bg-card rounded-lg p-3 sm:p-4 shadow-lg border border-border-color flex flex-col h-full"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{getModeIcon(story.competitionId)}</span>
-                      <span className="text-sm text-text-secondary">{getModeLabel(story.competitionId)}</span>
+                      <span className="text-base sm:text-lg">{getModeIcon(story.competitionId)}</span>
+                      <span className="text-xs sm:text-sm text-text-secondary">{getModeLabel(story.competitionId)}</span>
                     </div>
                     <span className="text-xs text-text-muted">
                       {story.likes || 0} ❤️
                     </span>
                   </div>
                   
-                  <h3 className="font-semibold text-warm-text mb-2 line-clamp-2">
+                  <h3 className="font-semibold text-warm-text mb-2 line-clamp-2 text-sm sm:text-base">
                     {story.title || story.story.substring(0, 50) + '...'}
                   </h3>
                   
-                  <p className="text-text-secondary text-sm mb-3 line-clamp-3 flex-grow">
+                  <p className="text-text-secondary text-xs sm:text-sm mb-3 line-clamp-3 flex-grow">
                     {story.story}
                   </p>
                   
@@ -238,14 +236,14 @@ export default function ReadPage() {
                   </div>
                   
                   <div className="flex items-center justify-between mt-auto">
-                    <span className="text-sm text-text-secondary">
+                    <span className="text-xs sm:text-sm text-text-secondary">
                       By {story.authorName}
                     </span>
                     <Link href={`/story/${story.id}?from=public`}>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="btn-secondary text-sm px-3 py-1"
+                        className="btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5"
                       >
                         Read
                       </motion.button>
@@ -256,8 +254,9 @@ export default function ReadPage() {
             </div>
 
             {filteredPublicStories.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-text-secondary">No public stories found with the current filters.</p>
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-4xl sm:text-6xl mb-4">🙁</div>
+                <p className="text-text-secondary text-sm sm:text-base">No public stories found with the current filters.</p>
               </div>
             )}
           </motion.div>

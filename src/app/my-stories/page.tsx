@@ -322,19 +322,19 @@ export default function MyStories() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <Link href="/">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-secondary glow-on-hover"
+              className="btn-secondary glow-on-hover text-sm sm:text-base"
             >
               ← Back to Home
             </motion.button>
@@ -344,199 +344,192 @@ export default function MyStories() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-4 sm:space-y-6"
         >
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-warm-text mb-2">My Stories</h1>
-              <p className="text-text-secondary">Manage your personal writing history</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">My Stories</h1>
+              <p className="text-sm sm:text-base text-text-secondary">
+                Manage your stories and track your writing progress
+              </p>
             </div>
-            <Link href="/write-story">
+            <div className="flex gap-2 sm:gap-3">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-primary glow-on-hover"
+                onClick={() => window.location.href = '/write-story'}
+                className="btn-primary glow-on-hover text-xs sm:text-sm py-2 px-3 sm:px-4"
               >
-                Write New Story
+                ✍️ New Story
               </motion.button>
-            </Link>
+            </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('private')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === 'private'
-                  ? 'bg-gradient-primary text-white shadow-lg'
-                  : 'bg-card text-warm-text hover:bg-card-hover'
-              }`}
-            >
-              🗃️ Private ({stories.filter(s => !s.isPublished).length})
-            </button>
-            <button
-              onClick={() => setActiveTab('published')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                activeTab === 'published'
-                  ? 'bg-gradient-primary text-white shadow-lg'
-                  : 'bg-card text-warm-text hover:bg-card-hover'
-              }`}
-            >
-              🌍 Published ({stories.filter(s => s.isPublished).length})
-            </button>
+          {/* Tab Navigation */}
+          <div className="flex justify-center">
+            <div className="card p-1 w-full max-w-md">
+              <div className="flex">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('private')}
+                  className={`flex-1 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-all duration-200 text-sm sm:text-base ${
+                    activeTab === 'private'
+                      ? 'bg-gradient-primary text-warm-white shadow-sm'
+                      : 'text-text-secondary hover:text-warm-text'
+                  }`}
+                >
+                  Private ({stories.filter(s => !s.isPublished).length})
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab('published')}
+                  className={`flex-1 px-3 sm:px-6 py-2 sm:py-3 rounded-md font-medium transition-all duration-200 text-sm sm:text-base ${
+                    activeTab === 'published'
+                      ? 'bg-gradient-primary text-warm-white shadow-sm'
+                      : 'text-text-secondary hover:text-warm-text'
+                  }`}
+                >
+                  Published ({stories.filter(s => s.isPublished).length})
+                </motion.button>
+              </div>
+            </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-4">
-            <div>
-              <label className="block text-sm font-medium text-warm-text mb-1">📅 Date</label>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex-1">
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="input-field px-3 py-2"
+                className="w-full p-2 sm:p-3 border border-border-color rounded-lg bg-background text-warm-text text-sm sm:text-base"
               >
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
                 <option value="yesterday">Yesterday</option>
-                <option value="week">Last 7 Days</option>
+                <option value="week">This Week</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-warm-text mb-1">🕹️ Mode</label>
+            <div className="flex-1">
               <select
                 value={modeFilter}
                 onChange={(e) => setModeFilter(e.target.value)}
-                className="input-field px-3 py-2"
+                className="w-full p-2 sm:p-3 border border-border-color rounded-lg bg-background text-warm-text text-sm sm:text-base"
               >
                 <option value="all">All Modes</option>
                 <option value="daily">Daily Challenge</option>
                 <option value="competition">Competition</option>
-                <option value="special">Special Modes</option>
+                <option value="special">Special Mode</option>
               </select>
             </div>
           </div>
 
           {/* Stories Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredStories.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredStories.map((story, index) => (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="col-span-full card p-8 soft-border text-center"
+                key={story.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="card p-4 sm:p-6 soft-border hover:shadow-lg transition-all duration-200"
               >
-                <div className="text-4xl mb-4">📚</div>
-                <h3 className="text-xl font-semibold text-warm-text mb-2">No stories found</h3>
-                <p className="text-text-secondary mb-4">
-                  {activeTab === 'private' 
-                    ? "You don't have any private stories yet."
-                    : "You don't have any published stories yet."
-                  }
-                </p>
-                <Link href="/write-story" className="btn-primary glow-on-hover">
-                  Write Your First Story
-                </Link>
-              </motion.div>
-            ) : (
-              filteredStories.map((story, index) => (
-                <motion.div
-                  key={story.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-card rounded-lg p-4 shadow-lg border border-border-color"
-                >
-                  {editingStory === story.id ? (
-                    // Edit Form
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-warm-text mb-2">Title</label>
-                        <input
-                          type="text"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          className="input-field w-full p-3"
-                          maxLength={50}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-warm-text mb-2">Story</label>
-                        <textarea
-                          value={editStory}
-                          onChange={(e) => setEditStory(e.target.value)}
-                          className="input-field w-full h-32 p-3 resize-none"
-                          maxLength={2000}
-                        />
-                        <p className="text-sm text-text-secondary mt-1">
-                          {editStory.split(/\s+/).length} words
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleSaveEdit(story.id)}
-                          className="btn-primary px-4 py-2"
-                        >
-                          Save Changes
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={handleCancelEdit}
-                          className="btn-secondary px-4 py-2"
-                        >
-                          Cancel
-                        </motion.button>
-                      </div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg sm:text-xl">{getModeIcon(story.competitionId)}</span>
+                    <span className="text-xs sm:text-sm text-text-secondary">{getModeLabel(story.competitionId)}</span>
+                  </div>
+                  <span className="text-xs text-text-muted">
+                    {story.createdAt.toLocaleDateString()}
+                  </span>
+                </div>
+
+                {editingStory === story.id ? (
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="w-full p-2 border border-border-color rounded bg-background text-warm-text text-sm"
+                      placeholder="Story title"
+                    />
+                    <textarea
+                      value={editStory}
+                      onChange={(e) => setEditStory(e.target.value)}
+                      className="w-full p-2 border border-border-color rounded bg-background text-warm-text text-sm h-24 resize-none"
+                      placeholder="Story content"
+                    />
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleSaveEdit(story.id)}
+                        className="btn-primary glow-on-hover text-xs py-1 px-3"
+                      >
+                        Save
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleCancelEdit}
+                        className="btn-secondary glow-on-hover text-xs py-1 px-3"
+                      >
+                        Cancel
+                      </motion.button>
                     </div>
-                  ) : (
-                    // Story Card (Clickable)
-                    <Link href={`/story/${story.id}?from=my-stories`}>
-                      <div className="cursor-pointer h-full flex flex-col">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{getModeIcon(story.competitionId)}</span>
-                            <span className="text-sm text-text-secondary">{getModeLabel(story.competitionId)}</span>
-                          </div>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            story.isPublished 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {story.isPublished ? 'Published' : 'Private'}
-                          </span>
-                        </div>
-                        
-                        <h3 className="font-semibold text-warm-text mb-2 line-clamp-2">
-                          {story.title || story.story.substring(0, 50) + '...'}
-                        </h3>
-                        
-                        <p className="text-text-secondary text-sm mb-3 line-clamp-3 flex-grow">
-                          {story.story}
-                        </p>
-                        
-                        <div className="flex items-center justify-between text-xs text-text-muted mb-3">
-                          <span>{story.createdAt.toLocaleDateString()}</span>
-                          <span>{story.wordCount} words</span>
-                        </div>
-                        
-                        <div className="flex items-center justify-end mt-auto">
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="btn-secondary text-sm px-3 py-1"
-                          >
-                            View
-                          </motion.button>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-                </motion.div>
-              ))
-            )}
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="font-bold text-lg sm:text-xl mb-2 text-warm-text line-clamp-2">{story.title}</h3>
+                    <p className="text-text-secondary text-sm sm:text-base mb-3 line-clamp-3">{story.story}</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs sm:text-sm text-text-muted">{story.wordCount} words</span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        story.isPublished 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {story.isPublished ? 'Published' : 'Draft'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => window.location.href = `/story/${story.id}?from=my-stories`}
+                        className="btn-primary glow-on-hover text-xs sm:text-sm py-2 px-3 flex-1"
+                      >
+                        View
+                      </motion.button>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            ))}
           </div>
+
+          {filteredStories.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-4xl sm:text-6xl mb-4">📚</div>
+              <h3 className="text-lg sm:text-xl font-bold text-warm-text mb-2">No stories found</h3>
+              <p className="text-text-secondary mb-6 text-sm sm:text-base">
+                {activeTab === 'private' 
+                  ? "You don't have any private stories yet." 
+                  : "You haven't published any stories yet."
+                }
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => window.location.href = '/write-story'}
+                className="btn-primary glow-on-hover text-sm sm:text-base"
+              >
+                Write Your First Story
+              </motion.button>
+            </div>
+          )}
         </motion.div>
       </div>
 

@@ -131,16 +131,16 @@ export default function ProgressPage() {
   if (!userCoins) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="card p-8 soft-border text-center"
+            className="card p-6 sm:p-8 soft-border text-center"
           >
-            <div className="text-6xl mb-4">💰</div>
-            <h1 className="text-2xl font-bold text-warm-text mb-4">Writer Progress</h1>
-            <p className="text-text-secondary mb-6">Start writing stories to earn coins and unlock badges!</p>
-            <Link href="/write-story" className="btn-primary glow-on-hover">
+            <div className="text-4xl sm:text-6xl mb-4">💰</div>
+            <h1 className="text-xl sm:text-2xl font-bold text-warm-text mb-4">Writer Progress</h1>
+            <p className="text-sm sm:text-base text-text-secondary mb-6">Start writing stories to earn coins and unlock badges!</p>
+            <Link href="/write-story" className="btn-primary glow-on-hover text-sm sm:text-base">
               Write Your First Story
             </Link>
           </motion.div>
@@ -154,91 +154,77 @@ export default function ProgressPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-4 sm:space-y-6"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex-1"></div>
-            <div className="flex-1 text-center">
-              <h1 className="text-3xl font-bold text-warm-text mb-2">Writer Progress</h1>
-              <p className="text-text-secondary">Track your writing journey and achievements</p>
-            </div>
-            <div className="flex-1 flex justify-end">
-              <Link href="/">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="btn-secondary glow-on-hover"
-                >
-                  ← Back to Home
-                </motion.button>
-              </Link>
-            </div>
+          {/* Header - Mobile responsive */}
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">Writer Progress</h1>
+            <p className="text-sm sm:text-base text-text-secondary">Track your writing journey and achievements</p>
           </div>
 
-          {/* Coins Card */}
+          {/* Coins Card - Mobile responsive */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="card p-6 soft-border"
+            className="card p-4 sm:p-6 soft-border"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">💰</div>
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="text-3xl sm:text-4xl">💰</div>
                 <div>
-                  <h2 className="text-xl font-semibold text-warm-text">Total Coins</h2>
-                  <p className="text-text-secondary text-sm">Earn coins by writing stories and completing challenges</p>
+                  <h2 className="text-lg sm:text-xl font-semibold text-warm-text">Total Coins</h2>
+                  <p className="text-xs sm:text-sm text-text-secondary">Earn coins by writing stories and completing challenges</p>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-amber-600">
+              <div className="text-2xl sm:text-3xl font-bold text-amber-600">
                 {userCoins.totalCoins}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4">
               <div className="text-center p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl mb-1">📝</div>
-                <p className="text-sm text-text-secondary">Stories</p>
-                <p className="font-semibold text-warm-text">{userCoins.storiesCompleted}</p>
+                <div className="text-xl sm:text-2xl mb-1">📝</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Stories</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">{userCoins.storiesCompleted}</p>
               </div>
 
               <div className="text-center p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl mb-1">🏁</div>
-                <p className="text-sm text-text-secondary">Competitions</p>
-                <p className="font-semibold text-warm-text">{userCoins.competitionsParticipated}</p>
+                <div className="text-xl sm:text-2xl mb-1">🏁</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Competitions</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">{userCoins.competitionsParticipated || 0}</p>
               </div>
               <div className="text-center p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl mb-1">👑</div>
-                <p className="text-sm text-text-secondary">Wins</p>
-                <p className="font-semibold text-warm-text">{userCoins.competitionsWon}</p>
+                <div className="text-xl sm:text-2xl mb-1">👑</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Wins</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">{userCoins.competitionsWon || 0}</p>
               </div>
             </div>
           </motion.div>
 
-          {/* Badges Section */}
+          {/* Badges Section - Mobile responsive */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="card p-6 soft-border"
+            className="card p-4 sm:p-6 soft-border"
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
               <div>
-                <h2 className="text-xl font-semibold text-warm-text">Badges & Achievements</h2>
-                <p className="text-text-secondary text-sm">Unlock badges by reaching milestones</p>
+                <h2 className="text-lg sm:text-xl font-semibold text-warm-text">Badges & Achievements</h2>
+                <p className="text-xs sm:text-sm text-text-secondary">Unlock badges by reaching milestones</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-text-secondary">Progress</p>
-                <p className="font-semibold text-warm-text">{earnedBadges.length} / {totalBadges}</p>
+                <p className="text-xs sm:text-sm text-text-secondary">Progress</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">{earnedBadges.length} / {totalBadges}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {BADGE_DEFINITIONS.map((badgeDef, index) => {
                 const earnedBadge = earnedBadges.find((b: any) => b.id === badgeDef.id);
                 const isEarned = !!earnedBadge;
@@ -249,17 +235,17 @@ export default function ProgressPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * index }}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                    className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 ${
                       isEarned 
                         ? `${getBadgeColor(badgeDef.category)} shadow-lg` 
                         : 'bg-gray-50 border-gray-200 opacity-60'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">{badgeDef.icon}</div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm">{badgeDef.name}</h3>
-                        <p className="text-xs text-text-secondary">{badgeDef.description}</p>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="text-xl sm:text-2xl">{badgeDef.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-xs sm:text-sm truncate">{badgeDef.name}</h3>
+                        <p className="text-xs text-text-secondary line-clamp-2">{badgeDef.description}</p>
                         {isEarned && earnedBadge.earnedDate && (
                           <p className="text-xs text-green-600 mt-1">
                             Earned {(earnedBadge.earnedDate.toDate ? earnedBadge.earnedDate.toDate() : new Date(earnedBadge.earnedDate)).toLocaleDateString()}
@@ -267,7 +253,7 @@ export default function ProgressPage() {
                         )}
                       </div>
                       {isEarned && (
-                        <div className="text-green-500">✓</div>
+                        <div className="text-green-500 text-sm sm:text-base">✓</div>
                       )}
                     </div>
                   </motion.div>
@@ -276,52 +262,55 @@ export default function ProgressPage() {
             </div>
           </motion.div>
 
-          {/* Coin Rewards Info */}
+          {/* Coin Rewards Info - Mobile responsive */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="card p-6 soft-border"
+            className="card p-4 sm:p-6 soft-border"
           >
-            <h3 className="text-lg font-semibold text-warm-text mb-4">How to Earn Coins</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl">📝</div>
+            <h3 className="text-base sm:text-lg font-semibold text-warm-text mb-3 sm:mb-4">How to Earn Coins</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 p-3 bg-card-hover rounded-lg">
+                <div className="text-xl sm:text-2xl">📝</div>
                 <div>
-                  <p className="font-medium text-warm-text">Complete a Story</p>
-                  <p className="text-sm text-text-secondary">+{COIN_REWARDS.STORY_COMPLETION} coins</p>
+                  <p className="font-medium text-warm-text text-sm sm:text-base">Complete a Story</p>
+                  <p className="text-xs sm:text-sm text-text-secondary">+{COIN_REWARDS.STORY_COMPLETION} coins</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl">🏁</div>
+              <div className="flex items-center gap-2 sm:gap-3 p-3 bg-card-hover rounded-lg">
+                <div className="text-xl sm:text-2xl">🏁</div>
                 <div>
-                  <p className="font-medium text-warm-text">Participate in Competition</p>
-                  <p className="text-sm text-text-secondary">+{COIN_REWARDS.COMPETITION_PARTICIPATION} coins</p>
+                  <p className="font-medium text-warm-text text-sm sm:text-base">Participate in Competition</p>
+                  <p className="text-xs sm:text-sm text-text-secondary">+{COIN_REWARDS.COMPETITION_PARTICIPATION} coins</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg">
-                <div className="text-2xl">👑</div>
+              <div className="flex items-center gap-2 sm:gap-3 p-3 bg-card-hover rounded-lg">
+                <div className="text-xl sm:text-2xl">👑</div>
                 <div>
-                  <p className="font-medium text-warm-text">Win Competition</p>
-                  <p className="text-sm text-text-secondary">+{COIN_REWARDS.COMPETITION_WIN} coins</p>
+                  <p className="font-medium text-warm-text text-sm sm:text-base">Win Competition</p>
+                  <p className="text-xs sm:text-sm text-text-secondary">+{COIN_REWARDS.COMPETITION_WIN} coins</p>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Action Buttons */}
+          {/* Back Button - Moved to bottom */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex justify-center pt-4"
           >
-            <Link href="/write-story" className="btn-primary glow-on-hover text-center">
-              Write Today's Story
-            </Link>
-            <Link href="/daily-challenges" className="btn-secondary glow-on-hover text-center">
-              View Daily Challenges
+            <Link href="/">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="btn-secondary glow-on-hover text-sm sm:text-base py-2 sm:py-3 px-4 sm:px-6"
+              >
+                ← Back to Home
+              </motion.button>
             </Link>
           </motion.div>
         </motion.div>

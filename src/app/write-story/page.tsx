@@ -132,7 +132,7 @@ export default function WriteStory() {
     setShowPublishConfirm(false);
     if (!title.trim() || !story.trim()) return;
     setIsSubmitting(true);
-    
+      
     try {
       // Check if user has already submitted today using the tracker
       const userId = getUserId();
@@ -186,7 +186,7 @@ export default function WriteStory() {
       });
 
       // Update user coins and check badges
-      const currentUserId = currentUser ? currentUser.uid : getUserId();
+          const currentUserId = currentUser ? currentUser.uid : getUserId();
       console.log('🎯 Current user ID for coins:', currentUserId);
       console.log('💰 Coins to be earned:', coinsEarned);
       
@@ -422,7 +422,7 @@ export default function WriteStory() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -483,13 +483,13 @@ export default function WriteStory() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="card p-6 soft-border mb-8"
+                className="card p-4 sm:p-6 soft-border mb-6 sm:mb-8"
               >
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-3 sm:space-y-4">
                   <div className="space-y-2">
-                    <p className="text-2xl text-warm-text font-medium">{dailyPrompt.text}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl text-warm-text font-medium leading-relaxed">{dailyPrompt.text}</p>
                     {dailyPrompt.description && (
-                      <p className="text-text-secondary text-sm">{dailyPrompt.description}</p>
+                      <p className="text-text-secondary text-xs sm:text-sm">{dailyPrompt.description}</p>
                     )}
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function WriteStory() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
             <motion.div
               whileFocus={{ scale: 1.005 }}
@@ -539,7 +539,7 @@ export default function WriteStory() {
               </label>
               <textarea
                 id="story"
-                className="input-field w-full h-96 p-3 placeholder-text-muted resize-none"
+                className="input-field w-full h-64 sm:h-80 md:h-96 p-3 placeholder-text-muted resize-none"
                 value={story}
                 onChange={handleStoryChange}
                 placeholder="Write your story here... Let your imagination flow!"
@@ -577,12 +577,12 @@ export default function WriteStory() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex gap-4 pt-6"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6"
             >
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-primary glow-on-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary glow-on-hover disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none"
                 onClick={() => setShowSaveConfirm(true)}
                 disabled={!title.trim() || !story.trim() || isSubmitting || isUnderMinimum || isOverLimit || alreadySubmitted}
               >
@@ -591,16 +591,16 @@ export default function WriteStory() {
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-secondary glow-on-hover disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-secondary glow-on-hover disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none"
                 onClick={() => setShowPublishConfirm(true)}
                 disabled={!title.trim() || !story.trim() || isSubmitting || isUnderMinimum || isOverLimit || alreadySubmitted}
-              >
+                  >
                 {isSubmitting ? "Publishing..." : "🌍 Publish"}
               </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-secondary glow-on-hover"
+                className="btn-secondary glow-on-hover flex-1 sm:flex-none"
                 onClick={() => setShowCancelConfirm(true)}
               >
                 ❌ Cancel
@@ -624,18 +624,18 @@ export default function WriteStory() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="card p-8 max-w-md mx-4 text-center"
+                className="card p-6 sm:p-8 max-w-md mx-4 text-center"
               >
-                <div className="text-6xl mb-4">✅</div>
-                <h3 className="text-xl font-bold warm-text mb-4">Story Saved Successfully!</h3>
-                <p className="text-text-secondary mb-6">
+                <div className="text-4xl sm:text-6xl mb-4">✅</div>
+                <h3 className="text-lg sm:text-xl font-bold warm-text mb-4">Story Saved Successfully!</h3>
+                <p className="text-sm sm:text-base text-text-secondary mb-6">
                   Your story has been saved and you've earned your coins! Publishing to the daily challenge will earn you additional coins (once per day).
                 </p>
                 <div className="flex flex-col gap-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="btn-primary glow-on-hover"
+                    className="btn-primary glow-on-hover w-full"
                     onClick={handlePublish}
                   >
                     🌍 Publish to Daily Challenge
@@ -643,7 +643,7 @@ export default function WriteStory() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="btn-secondary glow-on-hover"
+                    className="btn-secondary glow-on-hover w-full"
                     onClick={() => window.location.href = '/my-stories'}
                   >
                     📚 View in My Stories

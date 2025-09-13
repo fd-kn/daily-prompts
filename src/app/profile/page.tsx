@@ -264,19 +264,19 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <Link href="/">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-secondary glow-on-hover"
+              className="btn-secondary glow-on-hover text-sm sm:text-base"
             >
               ← Back to Home
             </motion.button>
@@ -288,10 +288,10 @@ export default function Profile() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-center mb-8"
+          className="text-center mb-6 sm:mb-8"
         >
-          <h1 className="text-4xl font-bold warm-text mb-4">Profile</h1>
-          <p className="text-text-secondary">Manage your account and preferences</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold warm-text mb-3 sm:mb-4">Profile</h1>
+          <p className="text-sm sm:text-base text-text-secondary">Manage your account and preferences</p>
         </motion.div>
 
         {/* Profile Content */}
@@ -299,12 +299,12 @@ export default function Profile() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="card p-8 soft-border max-w-2xl mx-auto"
+          className="card p-4 sm:p-6 md:p-8 soft-border max-w-2xl mx-auto"
         >
           {/* Profile Picture Section */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="relative inline-block">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-card-hover border-4 border-border-color">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-card-hover border-4 border-border-color">
                 {profile.profilePicture ? (
                   <img
                     src={profile.profilePicture}
@@ -312,7 +312,7 @@ export default function Profile() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-4xl text-text-muted">
+                  <div className="w-full h-full flex items-center justify-center text-2xl sm:text-4xl text-text-muted">
                     👤
                   </div>
                 )}
@@ -320,7 +320,7 @@ export default function Profile() {
               
               {/* Upload Button - Only show in edit mode */}
               {isEditing && (
-                <label className="absolute bottom-0 right-0 bg-gradient-primary text-warm-white p-2 rounded-full cursor-pointer hover:scale-110 transition-transform duration-200">
+                <label className="absolute bottom-0 right-0 bg-gradient-primary text-warm-white p-1.5 sm:p-2 rounded-full cursor-pointer hover:scale-110 transition-transform duration-200">
                   <input
                     type="file"
                     accept="image/*"
@@ -332,7 +332,7 @@ export default function Profile() {
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                      className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full"
                     />
                   ) : (
                     '📷'
@@ -342,17 +342,17 @@ export default function Profile() {
             </div>
             
             {imageUploading && (
-              <p className="text-sm text-text-muted mt-2">Processing image...</p>
+              <p className="text-xs sm:text-sm text-text-muted mt-2">Processing image...</p>
             )}
             {isEditing && (
-              <p className="text-sm text-text-muted mt-2">
+              <p className="text-xs sm:text-sm text-text-muted mt-2 px-4">
                 Click the camera icon to upload a profile picture (max 5MB, will be resized to 300x300)
               </p>
             )}
           </div>
 
           {/* Profile Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Username */}
             <div>
               <label className="block text-sm font-medium text-warm-text mb-2">
@@ -362,17 +362,15 @@ export default function Profile() {
                 <input
                   type="text"
                   value={profile.username}
-                  onChange={(e) => setProfile(prev => ({ ...prev, username: e.target.value }))}
-                  className="input-field w-full p-3"
+                  onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                  className="w-full p-3 border border-border-color rounded-lg bg-background text-warm-text text-sm sm:text-base"
                   placeholder="Enter your username"
                   maxLength={30}
                 />
               ) : (
-                <div className="p-3 bg-card-hover rounded-lg">
-                  <span className="text-warm-text">
-                    {profile.username || 'No username set'}
-                  </span>
-                </div>
+                <p className="text-sm sm:text-base text-warm-text p-3 bg-card-hover rounded-lg">
+                  {profile.username || 'No username set'}
+                </p>
               )}
             </div>
 
@@ -384,73 +382,64 @@ export default function Profile() {
               {isEditing ? (
                 <textarea
                   value={profile.bio}
-                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  className="input-field w-full p-3 resize-none"
+                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                  className="w-full p-3 border border-border-color rounded-lg bg-background text-warm-text text-sm sm:text-base h-24 resize-none"
                   placeholder="Tell us about yourself..."
-                  rows={4}
                   maxLength={200}
                 />
               ) : (
-                <div className="p-3 bg-card-hover rounded-lg min-h-[60px]">
-                  <span className="text-warm-text">
-                    {profile.bio || 'No bio set'}
-                  </span>
-                </div>
+                <p className="text-sm sm:text-base text-warm-text p-3 bg-card-hover rounded-lg min-h-[60px]">
+                  {profile.bio || 'No bio set'}
+                </p>
+              )}
+              {isEditing && (
+                <p className="text-xs text-text-muted mt-1">
+                  {profile.bio.length}/200 characters
+                </p>
               )}
             </div>
 
-            {/* Email (Read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-warm-text mb-2">
-                Email
-              </label>
-              <div className="p-3 bg-card-hover rounded-lg">
-                <span className="text-text-secondary">{user.email}</span>
+            {/* Account Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-border-color">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1">
+                  Email
+                </label>
+                <p className="text-sm sm:text-base text-warm-text">{user.email}</p>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1">
+                  Member Since
+                </label>
+                <p className="text-sm sm:text-base text-warm-text">
+                  {profile.createdAt.toLocaleDateString()}
+                </p>
               </div>
             </div>
 
-            {/* Account Stats */}
-            <div className="border-t border-border-color pt-4">
-              <h3 className="text-lg font-semibold text-warm-text mb-4">Account Stats</h3>
-              
-              {/* Coin Balance */}
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg mb-3">
-                                  <span className="text-2xl">💰</span>
-                <div>
-                  <p className="text-sm text-text-secondary">Coin Balance</p>
-                  <p className="font-semibold text-warm-text">{userCoins?.totalCoins || 0} coins</p>
-                </div>
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4 border-t border-border-color">
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl mb-2">💰</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Coin Balance</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">{userCoins?.totalCoins || 0} coins</p>
               </div>
-
-              {/* Membership Tier */}
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg mb-3">
-                <span className="text-2xl">👑</span>
-                <div>
-                  <p className="text-sm text-text-secondary">Membership</p>
-                  <p className="font-semibold text-warm-text">Free Tier</p>
-                </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl mb-2">👑</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Membership</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">Free Tier</p>
               </div>
-
-              {/* Badges Earned */}
-              <div className="flex items-center gap-3 p-3 bg-card-hover rounded-lg mb-3">
-                <span className="text-2xl">🏆</span>
-                <div>
-                  <p className="text-sm text-text-secondary">Badges Earned</p>
-                  <p className="font-semibold text-warm-text">
-                    {userBadges?.badges?.filter((badge: any) => badge.earned).length || 0} badges
-                  </p>
-                </div>
-              </div>
-
-              {/* Account Info */}
-              <div className="text-sm text-text-muted space-y-1 mt-4 pt-4 border-t border-border-color">
-                <p>Member since: {profile.createdAt.toLocaleDateString()}</p>
-                <p>Last updated: {profile.lastUpdated.toLocaleDateString()}</p>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl mb-2">🏆</div>
+                <p className="text-xs sm:text-sm text-text-secondary">Badges Earned</p>
+                <p className="font-semibold text-warm-text text-sm sm:text-base">
+                  {userBadges?.badges?.filter((badge: any) => badge.earned).length || 0} badges
+                </p>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-border-color">
               {isEditing ? (
                 <>
                   <motion.button
@@ -458,7 +447,7 @@ export default function Profile() {
                     whileTap={{ scale: 0.98 }}
                     onClick={handleSave}
                     disabled={saving}
-                    className="btn-primary glow-on-hover flex-1 disabled:opacity-50"
+                    className="btn-primary glow-on-hover flex-1 text-sm sm:text-base py-2 sm:py-3"
                   >
                     {saving ? 'Saving...' : 'Save Changes'}
                   </motion.button>
@@ -466,7 +455,7 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleCancel}
-                    className="btn-secondary glow-on-hover"
+                    className="btn-secondary glow-on-hover flex-1 text-sm sm:text-base py-2 sm:py-3"
                   >
                     Cancel
                   </motion.button>
@@ -477,7 +466,7 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleStartEdit}
-                    className="btn-primary glow-on-hover flex-1"
+                    className="btn-primary glow-on-hover flex-1 text-sm sm:text-base py-2 sm:py-3"
                   >
                     Edit Profile
                   </motion.button>
@@ -485,7 +474,7 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowLogoutConfirm(true)}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md shadow-sm font-semibold transition-all duration-200 hover:bg-red-700"
+                    className="btn-secondary glow-on-hover flex-1 text-sm sm:text-base py-2 sm:py-3 text-red-600 hover:text-red-700"
                   >
                     Logout
                   </motion.button>

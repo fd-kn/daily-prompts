@@ -32,15 +32,15 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
 
   if (!competition) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Competition Not Found</h1>
-          <p className="text-gray-600 mb-6">The competition you're looking for doesn't exist.</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Competition Not Found</h1>
+          <p className="text-gray-600 mb-6 text-sm sm:text-base">The competition you're looking for doesn't exist.</p>
           <Link href="/competitions">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-purple-600 text-white px-6 py-3 rounded-md shadow-sm font-medium hover:bg-purple-700 transition-colors duration-200"
+              className="bg-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-md shadow-sm font-medium hover:bg-purple-700 transition-colors duration-200 text-sm sm:text-base w-full sm:w-auto"
             >
               Back to Competitions
             </motion.button>
@@ -54,19 +54,19 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
   const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto p-8">
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <Link href="/competitions">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-secondary glow-on-hover"
+              className="btn-secondary glow-on-hover text-sm sm:text-base"
             >
               ← Back to Competitions
             </motion.button>
@@ -77,110 +77,86 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+          className="text-center mb-8 sm:mb-12"
         >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-8">
-            <h1 className="text-3xl font-bold mb-4">{competition.name}</h1>
-            <div className="flex flex-wrap gap-4">
-              <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full font-semibold">
-                Prize: {competition.cashPrize}
-              </span>
-              <span className="bg-red-400 text-red-900 px-3 py-1 rounded-full font-semibold">
-                {daysRemaining} days remaining
-              </span>
-              <span className="bg-green-400 text-green-900 px-3 py-1 rounded-full font-semibold">
-                {competition.wordLimit} words max
-              </span>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-8 space-y-8">
-            {/* Description */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <h2 className="text-xl font-bold text-gray-800 mb-3">About This Competition</h2>
-              <p className="text-gray-700 leading-relaxed">{competition.description}</p>
-            </motion.div>
-
-            {/* Prompt */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="bg-blue-50 border border-blue-200 rounded-lg p-6"
-            >
-              <h2 className="text-xl font-bold text-blue-800 mb-3">Writing Prompt</h2>
-              <p className="text-blue-900 text-lg leading-relaxed">{competition.prompt}</p>
-            </motion.div>
-
-            {/* Rules */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Competition Rules</h2>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                <ul className="space-y-3">
-                  {competition.rules.map((rule, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
-                        {index + 1}
-                      </span>
-                      <span className="text-gray-700">{rule}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-
-            {/* Important Dates */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-yellow-50 border border-yellow-200 rounded-lg p-6"
-            >
-              <h2 className="text-xl font-bold text-yellow-800 mb-3">Important Dates</h2>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-yellow-900 font-medium">Submission Deadline:</span>
-                  <span className="text-yellow-900 font-semibold">{competition.deadline.toLocaleDateString()} at 11:59 PM</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-yellow-900 font-medium">Time Remaining:</span>
-                  <span className="text-yellow-900 font-semibold">{daysRemaining} days</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Action Button */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="text-center pt-6"
-            >
-              <Link href={`/write-competition?competition=${competition.id}&mode=timed`}>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-purple-600 text-white px-12 py-4 rounded-md shadow-lg hover:bg-purple-700 transition-all duration-200 text-xl font-semibold"
-                >
-                  Enter Competition
-                </motion.button>
-              </Link>
-              <p className="text-gray-600 mt-4">
-                By entering, you agree to all competition rules and terms.
-              </p>
-            </motion.div>
-          </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold warm-text mb-4 sm:mb-6">
+            {competition.name}
+          </h1>
+          <p className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto px-4">
+            {competition.description}
+          </p>
         </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+          {/* Competition Details */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="card p-4 sm:p-6 soft-border">
+              <h2 className="text-lg sm:text-xl font-bold warm-text mb-4">Competition Prompt</h2>
+              <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
+                {competition.prompt}
+              </p>
+            </div>
+
+            <div className="card p-4 sm:p-6 soft-border">
+              <h2 className="text-lg sm:text-xl font-bold warm-text mb-4">Rules & Guidelines</h2>
+              <ul className="space-y-2 text-sm sm:text-base text-text-secondary">
+                {competition.rules.map((rule, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-muted-amber mt-1">•</span>
+                    <span>{rule}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+
+          {/* Competition Info & Actions */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="space-y-6"
+          >
+            <div className="card p-4 sm:p-6 soft-border">
+              <h2 className="text-lg sm:text-xl font-bold warm-text mb-4">Competition Details</h2>
+              <div className="space-y-3 text-sm sm:text-base">
+                <div className="flex justify-between items-center">
+                  <span className="text-text-secondary">Cash Prize:</span>
+                  <span className="font-semibold text-warm-text">{competition.cashPrize}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-text-secondary">Word Limit:</span>
+                  <span className="font-semibold text-warm-text">{competition.wordLimit} words</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-text-secondary">Deadline:</span>
+                  <span className="font-semibold text-warm-text">
+                    {competition.deadline.toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="card p-4 sm:p-6 soft-border text-center">
+              <h3 className="text-lg sm:text-xl font-bold warm-text mb-4">Ready to Compete?</h3>
+              <p className="text-sm sm:text-base text-text-secondary mb-6">
+                Submit your story and compete for the grand prize!
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="btn-primary glow-on-hover text-base sm:text-lg font-semibold w-full sm:w-auto"
+              >
+                Submit Entry
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

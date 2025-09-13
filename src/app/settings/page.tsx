@@ -151,54 +151,54 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-8"
+          className="space-y-6 sm:space-y-8"
         >
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-warm-text mb-2">Settings</h1>
-              <p className="text-text-secondary">Manage your account preferences</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">Settings</h1>
+              <p className="text-sm sm:text-base text-text-secondary">Manage your account preferences</p>
             </div>
             <Link href="/">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-secondary glow-on-hover"
+                className="btn-secondary glow-on-hover text-sm sm:text-base"
               >
                 ← Back to Home
               </motion.button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {/* General Settings */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="card p-6 soft-border"
+              className="card p-4 sm:p-6 soft-border"
             >
-              <h2 className="text-xl font-semibold text-warm-text mb-6">General Settings</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-warm-text mb-4 sm:mb-6">General Settings</h2>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Email Notifications */}
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-warm-text">Email Notifications</h3>
-                    <p className="text-sm text-text-secondary">Receive updates about competitions and new features</p>
+                  <div className="flex-1 pr-4">
+                    <h3 className="font-medium text-warm-text text-sm sm:text-base">Email Notifications</h3>
+                    <p className="text-xs sm:text-sm text-text-secondary">Receive updates about competitions and new features</p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
+                  <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                     <input
                       type="checkbox"
                       checked={settings.emailNotifications}
                       onChange={(e) => setSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-primary"></div>
+                    <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-gradient-primary"></div>
                   </label>
                 </div>
 
@@ -210,7 +210,7 @@ export default function Settings() {
                   <select
                     value={settings.storyVisibility}
                     onChange={(e) => setSettings(prev => ({ ...prev, storyVisibility: e.target.value as any }))}
-                    className="input-field w-full"
+                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
                   >
                     <option value="private">Private</option>
                     <option value="public">Public</option>
@@ -226,7 +226,7 @@ export default function Settings() {
                   <select
                     value={settings.theme}
                     onChange={(e) => setSettings(prev => ({ ...prev, theme: e.target.value as any }))}
-                    className="input-field w-full"
+                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
                   >
                     <option value="auto">Auto (System)</option>
                     <option value="light">Light</option>
@@ -242,7 +242,7 @@ export default function Settings() {
                   <select
                     value={settings.language}
                     onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value }))}
-                    className="input-field w-full"
+                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
                   >
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -250,16 +250,6 @@ export default function Settings() {
                     <option value="de">Deutsch</option>
                   </select>
                 </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSaveSettings}
-                  disabled={saving}
-                  className="btn-primary glow-on-hover w-full disabled:opacity-50"
-                >
-                  {saving ? 'Saving...' : 'Save Settings'}
-                </motion.button>
               </div>
             </motion.div>
 
@@ -268,80 +258,77 @@ export default function Settings() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="card p-6 soft-border"
+              className="card p-4 sm:p-6 soft-border"
             >
-              <h2 className="text-xl font-semibold text-warm-text mb-6">Security</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-warm-text mb-4 sm:mb-6">Security</h2>
               
-              <div className="space-y-6">
-                {/* Current Email */}
+              <div className="space-y-4 sm:space-y-6">
+                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-warm-text mb-2">
                     Email Address
                   </label>
-                  <div className="p-3 bg-card-hover rounded-lg">
-                    <span className="text-text-secondary">{user.email}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-text-secondary text-sm sm:text-base">{user.email}</span>
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Verified</span>
                   </div>
                 </div>
 
                 {/* Change Password */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-warm-text">Change Password</h3>
-                  
-                  <input
-                    type="password"
-                    placeholder="Current Password"
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                    className="input-field w-full"
-                  />
-                  
-                  <input
-                    type="password"
-                    placeholder="New Password"
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                    className="input-field w-full"
-                  />
-                  
-                  <input
-                    type="password"
-                    placeholder="Confirm New Password"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                    className="input-field w-full"
-                  />
-
-                  {passwordError && (
-                    <p className="text-red-500 text-sm">{passwordError}</p>
-                  )}
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleChangePassword}
-                    disabled={changingPassword}
-                    className="btn-secondary glow-on-hover w-full disabled:opacity-50"
-                  >
-                    {changingPassword ? 'Updating...' : 'Update Password'}
-                  </motion.button>
+                <div>
+                  <h3 className="font-medium text-warm-text mb-3 text-sm sm:text-base">Change Password</h3>
+                  <div className="space-y-3">
+                    <input
+                      type="password"
+                      placeholder="Current password"
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
+                    />
+                    <input
+                      type="password"
+                      placeholder="New password"
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
+                    />
+                    <input
+                      type="password"
+                      placeholder="Confirm new password"
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
+                    />
+                    {passwordError && (
+                      <p className="text-red-500 text-xs sm:text-sm">{passwordError}</p>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleChangePassword}
+                      disabled={changingPassword}
+                      className="btn-primary glow-on-hover text-sm sm:text-base py-2 sm:py-3 w-full"
+                    >
+                      {changingPassword ? 'Updating...' : 'Update Password'}
+                    </motion.button>
+                  </div>
                 </div>
 
                 {/* Account Actions */}
-                <div className="border-t border-border-color pt-6">
-                  <h3 className="font-medium text-warm-text mb-4">Account Actions</h3>
-                  
+                <div className="pt-4 border-t border-border-color">
+                  <h3 className="font-medium text-warm-text mb-4 text-sm sm:text-base">Account Actions</h3>
                   <div className="space-y-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowLogoutConfirm(true)}
-                      className="w-full p-3 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                      className="w-full p-3 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors text-sm sm:text-base"
                     >
                       🚪 Log Out
                     </motion.button>
                     
                     <button
-                      className="w-full p-3 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
+                      className="w-full p-3 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors text-sm sm:text-base"
                       disabled
                     >
                       🗑️ Delete Account (Coming Soon)
@@ -351,6 +338,24 @@ export default function Settings() {
               </div>
             </motion.div>
           </div>
+
+          {/* Save Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex justify-center"
+          >
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSaveSettings}
+              disabled={saving}
+              className="btn-primary glow-on-hover text-sm sm:text-base py-2 sm:py-3 px-6 sm:px-8"
+            >
+              {saving ? 'Saving...' : 'Save Settings'}
+            </motion.button>
+          </motion.div>
         </motion.div>
       </div>
 

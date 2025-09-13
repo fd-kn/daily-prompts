@@ -499,14 +499,14 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                 {/* Action buttons for personal stories - only show when viewing from My Stories section */}
                 {story.userId && isOwnStory(story.userId) && (fromSection === 'personal' || fromSection === 'my-stories') && (
                   <div className="flex gap-3">
-                    <motion.button 
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="btn-secondary glow-on-hover"
-                      onClick={() => setEditing(true)}
-                    >
-                      Edit
-                    </motion.button>
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="btn-secondary glow-on-hover"
+                        onClick={() => setEditing(true)}
+                      >
+                        Edit
+                      </motion.button>
                     
                     {/* Publish/Unpublish button */}
                     <motion.button 
@@ -514,8 +514,8 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                       whileTap={{ scale: 0.98 }}
                       className={`px-4 py-2 rounded-md shadow-sm font-semibold transition-all duration-200 ${
                         story.isPublished 
-                          ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                          : 'bg-green-600 text-white hover:bg-green-700'
+                          ? 'bg-gradient-secondary text-warm-text hover:opacity-90' 
+                          : 'btn-primary glow-on-hover'
                       }`}
                       onClick={() => story.isPublished ? setShowUnpublishConfirm(true) : setShowPublishConfirm(true)}
                     >
@@ -806,7 +806,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700"
+                    className="btn-primary glow-on-hover"
                     onClick={handlePublish}
                   >
                     Yes, Publish
