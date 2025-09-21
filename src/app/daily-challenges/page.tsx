@@ -326,48 +326,56 @@ export default function DailyChallenges() {
           )}
           
           <AnimatePresence>
-            {stories.map((storyItem, index) => (
-              <motion.div 
-                key={storyItem.id}
-                initial={{ opacity: 0, x: -50, scale: 0.95 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 50, scale: 0.95 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                whileHover={{ 
-                  scale: 1.01, 
-                  boxShadow: "var(--soft-shadow-hover)",
-                  y: -2
-                }}
-                className="mb-6 p-6 card"
-              >
-                <Link 
-                  href={`/story/${storyItem.id}`}
-                  className="block cursor-pointer"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {stories.map((storyItem, index) => (
+                <motion.div 
+                  key={storyItem.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="card p-4 sm:p-6 soft-border hover:shadow-lg transition-all duration-200"
                 >
-                  <motion.h4 
-                    whileHover={{ color: "var(--muted-amber)" }}
-                    className="font-bold text-xl text-warm-text hover:text-muted-amber transition-colors duration-200 mb-2"
-                  >
-                    {storyItem.title}
-                  </motion.h4>
-                  <div className="flex items-center gap-6">
-                    <p className="text-sm text-text-muted">
-                      Created on {storyItem.createdAt.toLocaleDateString()}
-                    </p>
-                    <p className="text-sm text-text-secondary">
-                      By <span className="font-medium text-warm-text">{storyItem.authorName || 'Anonymous'}</span>
-                    </p>
-                    <motion.div 
-                      whileHover={{ scale: 1.02 }}
-                      className="flex items-center gap-2 text-sm text-text-secondary"
-                    >
-                      <span className="text-lg">❤️</span>
-                      <span>{storyItem.likes || 0} {storyItem.likes === 1 ? 'like' : 'likes'}</span>
-                    </motion.div>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg sm:text-xl">📝</span>
+                      <span className="text-xs sm:text-sm text-text-secondary">Daily Challenge</span>
+                    </div>
+                    <span className="text-xs text-text-muted">
+                      {storyItem.likes || 0} ❤️
+                    </span>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
+                  
+                  <h3 className="font-bold text-lg sm:text-xl mb-2 text-warm-text line-clamp-2">
+                    {storyItem.title}
+                  </h3>
+                  
+                  <p className="text-text-secondary text-sm sm:text-base mb-3 line-clamp-3 flex-grow">
+                    {storyItem.story}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs sm:text-sm text-text-muted mb-3">
+                    <span>{storyItem.createdAt.toLocaleDateString()}</span>
+                    <span>{storyItem.story.split(' ').length} words</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-xs sm:text-sm text-text-secondary">
+                      By {storyItem.authorName || 'Anonymous'}
+                    </span>
+                    <Link href={`/story/${storyItem.id}?from=daily-challenges`}>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="btn-primary glow-on-hover text-xs sm:text-sm py-2 px-3"
+                      >
+                        Read
+                      </motion.button>
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </AnimatePresence>
           
           {stories.length === 0 && !loading && (

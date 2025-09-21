@@ -14,6 +14,8 @@ export default function LogoutConfirmModal({ isOpen, onClose }: LogoutConfirmMod
     try {
       await signOut(auth);
       onClose();
+      // Redirect to home page after logout
+      window.location.href = '/';
     } catch (error) {
       console.error('Error signing out:', error);
     }

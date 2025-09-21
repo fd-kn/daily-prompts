@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { useRouter } from 'next/navigation';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
@@ -19,6 +21,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       onClose();
+      // Redirect to homepage after successful login
+      router.push('/');
     } catch (error) {
       console.error('Error signing in with Google:', error);
     } finally {

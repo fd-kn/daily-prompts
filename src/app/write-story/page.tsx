@@ -35,6 +35,8 @@ export default function WriteStory() {
   const [dailyPrompt, setDailyPrompt] = useState(getDailyPrompt('micro'));
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  const router = useRouter();
+
   // Listen for authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -66,52 +68,83 @@ export default function WriteStory() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    // Check if user has already submitted today
-    const checkSubmission = async () => {
-      // Use authenticated user ID if available, otherwise use anonymous ID
-      const userId = currentUser ? currentUser.uid : getUserId();
-      if (!userId) return;
-      
-      try {
-        // Check the daily submission tracker
-        const submittedToday = await hasSubmittedToday(userId);
-        if (submittedToday) {
-          setHasSubmittedTodayState(true);
-          setAlreadySubmitted(true);
-          return;
-        }
-        
-        // Also check database for existing published stories from today (backup)
-        const storiesRef = collection(db, 'stories');
-        const q = query(
-          storiesRef,
-          where('userId', '==', userId),
-          where('competitionId', '==', 'micro')
-        );
-        
-        const querySnapshot = await getDocs(q);
-        
-        // Filter results on the client side for today's date and published stories
-        const todaysPublishedStories = querySnapshot.docs.filter(doc => {
-          const storyData = doc.data();
-          const storyDate = storyData.createdAt?.toDate() || new Date();
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          storyDate.setHours(0, 0, 0, 0);
-          return storyDate.getTime() === today.getTime() && storyData.isPublished !== false;
-        });
-        
-        if (todaysPublishedStories.length > 0) {
-          // Mark as submitted in tracker for consistency
-          await markSubmittedToday(userId);
-        }
-      } catch (error) {
-        console.error('Error checking submission:', error);
-      }
-    };
+  const checkSubmission = async () => {
+    // Use authenticated user ID if available, otherwise use anonymous ID
+    const userId = currentUser ? currentUser.uid : getUserId();
+    if (!userId) return;
     
-    checkSubmission();
+    try {
+      // Check the daily submission tracker
+      const submittedToday = await hasSubmittedToday(userId);
+      if (submittedToday) {
+        setHasSubmittedTodayState(true);
+        setAlreadySubmitted(true);
+        return;
+      }
+      
+      // Also check database for existing published stories from today (backup)
+      const storiesRef = collection(db, 'stories');
+      const q = query(
+        storiesRef,
+        where('userId', '==', userId),
+        where('competitionId', '==', 'micro')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      
+      // Filter results on the client side for today's date and published stories
+      const todaysPublishedStories = querySnapshot.docs.filter(doc => {
+        const storyData = doc.data();
+        const storyDate = storyData.createdAt?.toDate() || new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        storyDate.setHours(0, 0, 0, 0);
+        return storyDate.getTime() === today.getTime() && storyData.isPublished !== false;
+      });
+      
+      if (todaysPublishedStories.length > 0) {
+        // Mark as submitted in tracker for consistency
+        await markSubmittedToday(userId);
+      }
+    } catch (error) {
+      console.error('Error checking submission:', error);
+    }
+  };
+
+  const debugSubmissionStatus = async () => {
+    const userId = currentUser ? currentUser.uid : getUserId();
+    if (!userId) return;
+    
+    try {
+      const { doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('../../lib/firebase');
+      const docRef = doc(db, 'dailySubmissions', userId);
+      const docSnap = await getDoc(docRef);
+      
+      const today = new Date().toISOString().split('T')[0];
+      console.log('🔍 Debug Info:');
+      console.log('User ID:', userId);
+      console.log('Today (UTC):', today);
+      console.log('Document exists:', docSnap.exists());
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log('Stored data:', data);
+        console.log('Last submission date:', data.lastSubmissionDate);
+        console.log('Has submitted today:', data.hasSubmittedToday);
+        console.log('Dates match:', data.lastSubmissionDate === today);
+      }
+    } catch (error) {
+      console.error('Debug error:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Check submission status when user changes or on initial load
+    if (currentUser) {
+      debugSubmissionStatus();
+      checkSubmission();
+    }
   }, [currentUser]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,13 +175,11 @@ export default function WriteStory() {
       }
       
       const alreadySubmittedToday = await hasSubmittedToday(userId);
-      // Allow submission but track if it's the first submission of the day
-      const isFirstSubmissionOfDay = !alreadySubmittedToday;
-      
-      // Calculate coins earned (10 coins for publishing)
+
+      // Only award coins for writing (not publishing)
       let coinsEarned = 0;
-      if (isFirstSubmissionOfDay) {
-        coinsEarned = 10; // 10 coins for publishing
+      if (!alreadySubmittedToday) {
+        coinsEarned += 10; // 10 coins for first story written today
       }
       
       // Get author name
@@ -157,43 +188,44 @@ export default function WriteStory() {
       if (auth.currentUser) {
         try {
           const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-          console.log('User doc exists:', userDoc.exists());
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            console.log('User data:', userData);
             authorName = userData.username || userData.displayName || 'Anonymous';
-            console.log('Final author name:', authorName);
           }
         } catch (error) {
           console.error('Error getting user name:', error);
         }
       }
       
-      // Create the story as published
-      const storyRef = await addDoc(collection(db, 'stories'), {
-        title: title.trim(),
-        story: story.trim(),
-        authorName: authorName,
-        createdAt: new Date(),
-        competitionId: 'micro',
-        wordCount: getWordCount(story),
-        promptCategory: dailyPrompt.category,
-        promptText: dailyPrompt.text,
-        promptDescription: dailyPrompt.description,
-        userId: getUserId(),
-        coinsEarned: coinsEarned,
-        isPublished: true // Story is published immediately
-      });
+      // Update the existing story to published instead of creating a new one
+      if (submittedStoryId) {
+        await updateDoc(doc(db, 'stories', submittedStoryId), {
+          isPublished: true,
+          coinsEarned: coinsEarned // Update coins earned
+        });
+      } else {
+        // Fallback: create new story if no submittedStoryId
+        const storyRef = await addDoc(collection(db, 'stories'), {
+          title: title.trim(),
+          story: story.trim(),
+          authorName: authorName,
+          createdAt: new Date(),
+          competitionId: 'micro',
+          wordCount: getWordCount(story),
+          promptCategory: dailyPrompt.category,
+          promptText: dailyPrompt.text,
+          promptDescription: dailyPrompt.description,
+          userId: currentUser?.uid || getUserId(),
+          coinsEarned: coinsEarned,
+          isPublished: true
+        });
+      }
 
-      // Update user coins and check badges
-          const currentUserId = currentUser ? currentUser.uid : getUserId();
-      console.log('🎯 Current user ID for coins:', currentUserId);
-      console.log('💰 Coins to be earned:', coinsEarned);
+      // Update user coins and check badges only if coins were earned for writing
+      const currentUserId = currentUser ? currentUser.uid : getUserId();
       
-      if (currentUserId) {
-        console.log('🪙 Updating user coins...');
+      if (currentUserId && coinsEarned > 0) {
         await updateUserCoins(currentUserId, coinsEarned, 'story');
-        console.log('✅ User coins updated successfully');
         
         // Check for new badges
         const userCoins = await getUserCoins(currentUserId);
@@ -203,18 +235,16 @@ export default function WriteStory() {
             console.log('New badges earned:', newBadges);
           }
         }
-      }
-      
-      // Show points notification only if coins were earned
-      if (coinsEarned > 0) {
+        
+        // Show points notification
         setPointsEarned(coinsEarned);
         setNotificationType('story');
         setShowPointsNotification(true);
       }
       
-      // Mark as submitted today when they publish the story
+      // Mark as published today (for tracking purposes)
       if (userId) {
-        await markSubmittedToday(userId);
+        await markPublishedToday(userId);
       }
       
       // Redirect to home page to see the published story
@@ -232,20 +262,17 @@ export default function WriteStory() {
     
     try {
       // Check if user has already submitted today using the tracker
-      const userId = getUserId();
+      const userId = currentUser?.uid || getUserId();
       if (!userId) {
         setIsSubmitting(false);
         return;
       }
       
       const alreadySubmittedToday = await hasSubmittedToday(userId);
-      // Allow submission but track if it's the first submission of the day
-      const isFirstSubmissionOfDay = !alreadySubmittedToday;
-      
-      // Calculate coins earned (20 coins for saving to drafts)
+
       let coinsEarned = 0;
-      if (isFirstSubmissionOfDay) {
-        coinsEarned = 20; // 20 coins for saving to drafts
+      if (!alreadySubmittedToday) {
+        coinsEarned = 10; // 10 coins for first story written today
       }
       
       // Get author name
@@ -277,7 +304,7 @@ export default function WriteStory() {
         promptCategory: dailyPrompt.category,
         promptText: dailyPrompt.text,
         promptDescription: dailyPrompt.description,
-        userId: getUserId(),
+        userId: currentUser?.uid || getUserId(), // Use authenticated user ID first
         coinsEarned: coinsEarned,
         isPublished: false // Stories are private by default
       });
@@ -385,6 +412,8 @@ export default function WriteStory() {
                   const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
                   const provider = new GoogleAuthProvider();
                   await signInWithPopup(auth, provider);
+                  // Redirect to homepage after successful login
+                  router.push('/');
                 } catch (error: any) {
                   // Handle specific Firebase auth errors
                   if (error.code === 'auth/cancelled-popup-request') {
@@ -422,7 +451,7 @@ export default function WriteStory() {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
                 <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -460,7 +489,7 @@ export default function WriteStory() {
                 <div className="mt-6 space-y-3">
                   <Link 
                     href="/daily-challenges"
-                    className="btn-secondary glow-on-hover"
+                    className="btn-secondary glow-on-hover w-full sm:w-auto block sm:inline-block"
                   >
                     View Today's Entries
                   </Link>
@@ -469,7 +498,7 @@ export default function WriteStory() {
                       setAlreadySubmitted(false);
                       setHasSubmittedTodayState(false);
                     }}
-                    className="btn-primary glow-on-hover ml-3"
+                    className="btn-primary glow-on-hover w-full sm:w-auto block sm:inline-block sm:ml-3"
                   >
                     Write Another Story
                   </button>
@@ -586,16 +615,7 @@ export default function WriteStory() {
                 onClick={() => setShowSaveConfirm(true)}
                 disabled={!title.trim() || !story.trim() || isSubmitting || isUnderMinimum || isOverLimit || alreadySubmitted}
               >
-                {isSubmitting ? "Saving..." : "💾 Save to Drafts"}
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-secondary glow-on-hover disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none"
-                onClick={() => setShowPublishConfirm(true)}
-                disabled={!title.trim() || !story.trim() || isSubmitting || isUnderMinimum || isOverLimit || alreadySubmitted}
-                  >
-                {isSubmitting ? "Publishing..." : "🌍 Publish"}
+                {isSubmitting ? "Saving..." : "💾 Save Story"}
               </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.02 }}
@@ -629,7 +649,7 @@ export default function WriteStory() {
                 <div className="text-4xl sm:text-6xl mb-4">✅</div>
                 <h3 className="text-lg sm:text-xl font-bold warm-text mb-4">Story Saved Successfully!</h3>
                 <p className="text-sm sm:text-base text-text-secondary mb-6">
-                  Your story has been saved and you've earned your coins! Publishing to the daily challenge will earn you additional coins (once per day).
+                  Your story has been saved! You can now publish it to share with the community.
                 </p>
                 <div className="flex flex-col gap-3">
                   <motion.button

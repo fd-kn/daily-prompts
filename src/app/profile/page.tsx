@@ -9,6 +9,7 @@ import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import Link from 'next/link';
 import LogoutConfirmModal from '../../components/LogoutConfirmModal';
 import { getUserCoins, getUserBadges } from '../../lib/coinSystem';
+import UsernameSetupModal from '../../components/UsernameSetupModal';
 
 interface UserProfile {
   username: string;
@@ -41,6 +42,9 @@ export default function Profile() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [userCoins, setUserCoins] = useState<any>(null);
   const [userBadges, setUserBadges] = useState<any>(null);
+  const [showUsernameSetup, setShowUsernameSetup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -48,76 +52,108 @@ export default function Profile() {
     let badgesUnsubscribe: (() => void) | null = null;
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      
+      // Clean up previous listeners
+      if (coinsUnsubscribe) coinsUnsubscribe();
+      if (badgesUnsubscribe) badgesUnsubscribe();
+      
+      // Load user profile from Firestore
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user?.uid || ''));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          const loadedProfile = {
+            username: data.username || '',
+            bio: data.bio || '',
+            profilePicture: data.profilePicture || '',
+            createdAt: data.createdAt?.toDate() || new Date(),
+            lastUpdated: data.lastUpdated?.toDate() || new Date()
+          };
+          setProfile(loadedProfile);
+          setOriginalProfile(loadedProfile);
+        } else {
+          // Create new profile
+          const newProfile = {
+            username: '',
+            bio: '',
+            profilePicture: '',
+            createdAt: new Date(),
+            lastUpdated: new Date()
+          };
+          await setDoc(doc(db, 'users', user?.uid || ''), newProfile);
+          setProfile(newProfile);
+          setOriginalProfile(newProfile);
+        }
+
+        // Set up real-time listeners for coins and badges
+        coinsUnsubscribe = onSnapshot(doc(db, 'userCoins', user?.uid || ''), (doc) => {
+          if (doc.exists()) {
+            const coinsData = doc.data();
+            console.log('💰 Profile: Coins updated:', coinsData);
+            setUserCoins(coinsData);
+          } else {
+            console.log('💰 Profile: No coins data found, creating default');
+            setUserCoins({
+              totalCoins: 0,
+              storiesCompleted: 0,
+
+              badgesEarned: 0
+            });
+          }
+        });
+
+        badgesUnsubscribe = onSnapshot(doc(db, 'userBadges', user?.uid || ''), (doc) => {
+          if (doc.exists()) {
+            const badgesData = doc.data();
+            console.log('🏆 Profile: Badges updated:', badgesData);
+            setUserBadges(badgesData);
+          } else {
+            console.log('🏆 Profile: No badges data found, creating default');
+            setUserBadges({
+              badges: []
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+
+      // Check if username is set
       if (user) {
-        setUser(user);
-        
-        // Clean up previous listeners
-        if (coinsUnsubscribe) coinsUnsubscribe();
-        if (badgesUnsubscribe) badgesUnsubscribe();
-        
-        // Load user profile from Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
-            const data = userDoc.data();
-            const loadedProfile = {
-              username: data.username || '',
-              bio: data.bio || '',
-              profilePicture: data.profilePicture || '',
-              createdAt: data.createdAt?.toDate() || new Date(),
-              lastUpdated: data.lastUpdated?.toDate() || new Date()
-            };
-            setProfile(loadedProfile);
-            setOriginalProfile(loadedProfile);
+            const userData = userDoc.data();
+            const customUsername = userData.username;
+            
+            if (customUsername) {
+              // User has a username, proceed normally
+              setProfile(prev => ({ ...prev, username: customUsername }));
+              setOriginalProfile(prev => ({ ...prev, username: customUsername }));
+              setShowUsernameSetup(false);
+            } else {
+              // No username set, show setup modal
+              setProfile(prev => ({ ...prev, username: '' }));
+              setOriginalProfile(prev => ({ ...prev, username: '' }));
+              setShowUsernameSetup(true);
+            }
           } else {
-            // Create new profile
-            const newProfile = {
-              username: '',
-              bio: '',
-              profilePicture: '',
-              createdAt: new Date(),
-              lastUpdated: new Date()
-            };
-            await setDoc(doc(db, 'users', user.uid), newProfile);
-            setProfile(newProfile);
-            setOriginalProfile(newProfile);
+            // User document doesn't exist, show setup modal
+            setProfile(prev => ({ ...prev, username: '' }));
+            setOriginalProfile(prev => ({ ...prev, username: '' }));
+            setShowUsernameSetup(true);
           }
-
-          // Set up real-time listeners for coins and badges
-          coinsUnsubscribe = onSnapshot(doc(db, 'userCoins', user.uid), (doc) => {
-            if (doc.exists()) {
-              const coinsData = doc.data();
-              console.log('💰 Profile: Coins updated:', coinsData);
-              setUserCoins(coinsData);
-            } else {
-              console.log('💰 Profile: No coins data found, creating default');
-              setUserCoins({
-                totalCoins: 0,
-                storiesCompleted: 0,
-
-                badgesEarned: 0
-              });
-            }
-          });
-
-          badgesUnsubscribe = onSnapshot(doc(db, 'userBadges', user.uid), (doc) => {
-            if (doc.exists()) {
-              const badgesData = doc.data();
-              console.log('🏆 Profile: Badges updated:', badgesData);
-              setUserBadges(badgesData);
-            } else {
-              console.log('🏆 Profile: No badges data found, creating default');
-              setUserBadges({
-                badges: []
-              });
-            }
-          });
         } catch (error) {
-          console.error('Error loading profile:', error);
+          console.error('Error fetching username:', error);
+          setProfile(prev => ({ ...prev, username: '' }));
+          setOriginalProfile(prev => ({ ...prev, username: '' }));
+          setShowUsernameSetup(true);
         }
       } else {
-        // Not logged in, redirect to home
-        router.push('/');
+        setProfile(prev => ({ ...prev, username: '' }));
+        setOriginalProfile(prev => ({ ...prev, username: '' }));
+        setShowUsernameSetup(false);
       }
       setLoading(false);
     });
@@ -214,7 +250,15 @@ export default function Profile() {
   const handleSave = async () => {
     if (!user) return;
     
+    // Validate username is required
+    if (!profile.username.trim()) {
+      setError('Username is required');
+      return;
+    }
+    
     setSaving(true);
+    setError('');
+    
     try {
       await updateDoc(doc(db, 'users', user.uid), {
         username: profile.username,
@@ -225,8 +269,11 @@ export default function Profile() {
       // Update original profile with saved data
       setOriginalProfile(profile);
       setIsEditing(false);
+      setSuccessMessage('Profile updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
+      setError('Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -365,12 +412,17 @@ export default function Profile() {
                   onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                   className="w-full p-3 border border-border-color rounded-lg bg-background text-warm-text text-sm sm:text-base"
                   placeholder="Enter your username"
-                  maxLength={30}
+                  maxLength={25}
                 />
               ) : (
                 <p className="text-sm sm:text-base text-warm-text p-3 bg-card-hover rounded-lg">
                   {profile.username || 'No username set'}
                 </p>
+              )}
+              {error && (
+                <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm mt-2">
+                  {error}
+                </div>
               )}
             </div>
 
@@ -489,6 +541,17 @@ export default function Profile() {
       <LogoutConfirmModal
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
+      />
+
+      {/* Username Setup Modal */}
+      <UsernameSetupModal
+        isOpen={showUsernameSetup}
+        onComplete={(newUsername) => {
+          setProfile(prev => ({ ...prev, username: newUsername }));
+          setOriginalProfile(prev => ({ ...prev, username: newUsername }));
+          setShowUsernameSetup(false);
+        }}
+        userId={user?.uid || ''}
       />
     </div>
   );

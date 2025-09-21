@@ -3,55 +3,35 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { auth, db } from '../../lib/firebase';
-import { onAuthStateChanged, User, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { onAuthStateChanged, User, deleteUser } from 'firebase/auth';
+import { doc, getDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
-import LogoutConfirmModal from '../../components/LogoutConfirmModal';
-
-interface UserSettings {
-  emailNotifications: boolean;
-  storyVisibility: 'public' | 'private' | 'friends';
-  theme: 'light' | 'dark' | 'auto';
-  language: string;
-}
+import { useRouter } from 'next/navigation';
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<UserSettings>({
-    emailNotifications: true,
-    storyVisibility: 'private',
-    theme: 'auto',
-    language: 'en'
-  });
-  const [saving, setSaving] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [changingPassword, setChangingPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
+  const [username, setUsername] = useState('');
+  const [confirmationUsername, setConfirmationUsername] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showFinalConfirm, setShowFinalConfirm] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        // Load user settings from Firestore
+        // Load username from Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
-            setSettings({
-              emailNotifications: data.emailNotifications ?? true,
-              storyVisibility: data.storyVisibility ?? 'private',
-              theme: data.theme ?? 'auto',
-              language: data.language ?? 'en'
-            });
+            setUsername(data.username || '');
           }
         } catch (error) {
-          console.error('Error loading settings:', error);
+          console.error('Error loading username:', error);
         }
       }
       setLoading(false);
@@ -60,66 +40,63 @@ export default function Settings() {
     return () => unsubscribe();
   }, []);
 
-  const handleSaveSettings = async () => {
+  const handleDeleteAccount = async () => {
     if (!user) return;
     
-    setSaving(true);
-    try {
-      await updateDoc(doc(db, 'users', user.uid), {
-        ...settings,
-        lastUpdated: new Date()
-      });
-    } catch (error) {
-      console.error('Error saving settings:', error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (!user || !passwordData.currentPassword || !passwordData.newPassword) {
-      setPasswordError('Please fill in all fields');
+    if (confirmationUsername !== username) {
+      setError('Username does not match. Please try again.');
       return;
     }
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return;
-    }
-
-    setChangingPassword(true);
-    setPasswordError('');
+    setDeleting(true);
+    setError('');
 
     try {
-      // Re-authenticate user
-      const credential = EmailAuthProvider.credential(user.email!, passwordData.currentPassword);
-      await reauthenticateWithCredential(user, credential);
+      // Re-authenticate using Google (since that's how users log in)
+      const { reauthenticateWithPopup, GoogleAuthProvider } = await import('firebase/auth');
+      const provider = new GoogleAuthProvider();
+      await reauthenticateWithPopup(user, provider);
+
+      // Now proceed with account deletion
+      const { deleteUser } = await import('firebase/auth');
+      const { collection, query, where, getDocs, deleteDoc } = await import('firebase/firestore');
       
-      // Update password
-      await updatePassword(user, passwordData.newPassword);
+      // Delete user's stories
+      const storiesRef = collection(db, 'stories');
+      const userStoriesQuery = query(storiesRef, where('userId', '==', user.uid));
+      const storiesSnapshot = await getDocs(userStoriesQuery);
       
-      // Clear form
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      const deletePromises = storiesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+
+      // Delete user's profile
+      await deleteDoc(doc(db, 'users', user.uid));
       
-      alert('Password updated successfully!');
+      // Delete user's coins and badges
+      await deleteDoc(doc(db, 'userCoins', user.uid));
+      await deleteDoc(doc(db, 'userBadges', user.uid));
+
+      // Finally delete the user account
+      await deleteUser(user);
+      
+      // Redirect immediately to home page
+      window.location.href = '/';
+      
     } catch (error: any) {
-      console.error('Error changing password:', error);
-      if (error.code === 'auth/wrong-password') {
-        setPasswordError('Current password is incorrect');
+      console.error('Error deleting account:', error);
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Account deletion cancelled. Please try again.');
+      } else if (error.code === 'auth/user-mismatch') {
+        setError('Please select the same Google account you used to create this account.');
+      } else if (error.code === 'auth/credential-already-in-use') {
+        setError('This Google account is already associated with another account.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
       } else {
-        setPasswordError('Failed to update password. Please try again.');
+        setError('Failed to delete account. Please try again.');
       }
     } finally {
-      setChangingPassword(false);
+      setDeleting(false);
     }
   };
 
@@ -161,7 +138,7 @@ export default function Settings() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">Settings</h1>
-              <p className="text-sm sm:text-base text-text-secondary">Manage your account preferences</p>
+              <p className="text-sm sm:text-base text-text-secondary">Manage your account</p>
             </div>
             <Link href="/">
               <motion.button
@@ -174,196 +151,174 @@ export default function Settings() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            {/* General Settings */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="card p-4 sm:p-6 soft-border"
-            >
-              <h2 className="text-lg sm:text-xl font-semibold text-warm-text mb-4 sm:mb-6">General Settings</h2>
-              
-              <div className="space-y-4 sm:space-y-6">
-                {/* Email Notifications */}
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 pr-4">
-                    <h3 className="font-medium text-warm-text text-sm sm:text-base">Email Notifications</h3>
-                    <p className="text-xs sm:text-sm text-text-secondary">Receive updates about competitions and new features</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={settings.emailNotifications}
-                      onChange={(e) => setSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
-                      className="sr-only peer"
-                    />
-                    <div className="w-10 h-5 sm:w-11 sm:h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-gradient-primary"></div>
-                  </label>
-                </div>
-
-                {/* Story Visibility */}
-                <div>
-                  <label className="block text-sm font-medium text-warm-text mb-2">
-                    Default Story Visibility
-                  </label>
-                  <select
-                    value={settings.storyVisibility}
-                    onChange={(e) => setSettings(prev => ({ ...prev, storyVisibility: e.target.value as any }))}
-                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                  >
-                    <option value="private">Private</option>
-                    <option value="public">Public</option>
-                    <option value="friends">Friends Only</option>
-                  </select>
-                </div>
-
-                {/* Theme */}
-                <div>
-                  <label className="block text-sm font-medium text-warm-text mb-2">
-                    Theme
-                  </label>
-                  <select
-                    value={settings.theme}
-                    onChange={(e) => setSettings(prev => ({ ...prev, theme: e.target.value as any }))}
-                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                  >
-                    <option value="auto">Auto (System)</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                  </select>
-                </div>
-
-                {/* Language */}
-                <div>
-                  <label className="block text-sm font-medium text-warm-text mb-2">
-                    Language
-                  </label>
-                  <select
-                    value={settings.language}
-                    onChange={(e) => setSettings(prev => ({ ...prev, language: e.target.value }))}
-                    className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                  </select>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Security Settings */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="card p-4 sm:p-6 soft-border"
-            >
-              <h2 className="text-lg sm:text-xl font-semibold text-warm-text mb-4 sm:mb-6">Security</h2>
-              
-              <div className="space-y-4 sm:space-y-6">
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium text-warm-text mb-2">
-                    Email Address
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-text-secondary text-sm sm:text-base">{user.email}</span>
-                    <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Verified</span>
-                  </div>
-                </div>
-
-                {/* Change Password */}
-                <div>
-                  <h3 className="font-medium text-warm-text mb-3 text-sm sm:text-base">Change Password</h3>
-                  <div className="space-y-3">
-                    <input
-                      type="password"
-                      placeholder="Current password"
-                      value={passwordData.currentPassword}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                    />
-                    <input
-                      type="password"
-                      placeholder="New password"
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                    />
-                    <input
-                      type="password"
-                      placeholder="Confirm new password"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      className="input-field w-full text-sm sm:text-base py-2 sm:py-3"
-                    />
-                    {passwordError && (
-                      <p className="text-red-500 text-xs sm:text-sm">{passwordError}</p>
-                    )}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleChangePassword}
-                      disabled={changingPassword}
-                      className="btn-primary glow-on-hover text-sm sm:text-base py-2 sm:py-3 w-full"
-                    >
-                      {changingPassword ? 'Updating...' : 'Update Password'}
-                    </motion.button>
-                  </div>
-                </div>
-
-                {/* Account Actions */}
-                <div className="pt-4 border-t border-border-color">
-                  <h3 className="font-medium text-warm-text mb-4 text-sm sm:text-base">Account Actions</h3>
-                  <div className="space-y-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setShowLogoutConfirm(true)}
-                      className="w-full p-3 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors text-sm sm:text-base"
-                    >
-                      🚪 Log Out
-                    </motion.button>
-                    
-                    <button
-                      className="w-full p-3 text-orange-600 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors text-sm sm:text-base"
-                      disabled
-                    >
-                      🗑️ Delete Account (Coming Soon)
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Save Button */}
+          {/* Delete Account Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex justify-center"
+            className="max-w-2xl mx-auto"
           >
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSaveSettings}
-              disabled={saving}
-              className="btn-primary glow-on-hover text-sm sm:text-base py-2 sm:py-3 px-6 sm:px-8"
-            >
-              {saving ? 'Saving...' : 'Save Settings'}
-            </motion.button>
+            <div className="card p-6 sm:p-8 soft-border border-red-200">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">⚠️</div>
+                <h2 className="text-xl sm:text-2xl font-bold text-red-600 mb-2">Delete Account</h2>
+                <p className="text-sm sm:text-base text-text-secondary">
+                  This action cannot be undone. All your stories and data will be permanently deleted.
+                </p>
+              </div>
+
+              {!showConfirm ? (
+                <div className="space-y-4">
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <h3 className="font-semibold text-red-800 mb-2">What will be deleted:</h3>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      <li>• Your account and profile information</li>
+                      <li>• All your stories (published and unpublished)</li>
+                      <li>• Your progress and statistics</li>
+                      <li>• All associated data</li>
+                    </ul>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowConfirm(true)}
+                    className="w-full py-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                  >
+                    I understand, proceed to delete my account
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Warning about data deletion - moved to top */}
+                  <div className="bg-red-100 border border-red-300 p-4 rounded-lg">
+                    <h4 className="font-semibold text-red-800 mb-2">⚠️ Warning: This action cannot be undone</h4>
+                    <p className="text-sm text-red-700 mb-2">Deleting your account will permanently remove:</p>
+                    <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                      <li>All your stories and drafts</li>
+                      <li>Your coin balance and achievements</li>
+                      <li>Your profile information and settings</li>
+                      <li>All your writing progress and statistics</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <p className="text-sm text-red-700 mb-2">
+                      To confirm account deletion, please type your username exactly as it appears:
+                    </p>
+                    <p className="font-semibold text-red-800 text-lg">{username}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-warm-text mb-2">
+                      Type your username to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      value={confirmationUsername}
+                      onChange={(e) => setConfirmationUsername(e.target.value)}
+                      className="w-full p-3 border border-red-300 rounded-lg bg-background text-warm-text"
+                      placeholder="Enter your username"
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        setShowConfirm(false);
+                        setConfirmationUsername('');
+                        setError('');
+                      }}
+                      className="flex-1 py-3 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                    >
+                      Cancel
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        if (confirmationUsername === username) {
+                          setShowFinalConfirm(true);
+                        } else {
+                          setError('Username does not match. Please enter your exact username.');
+                        }
+                      }}
+                      disabled={deleting || confirmationUsername !== username}
+                      className="flex-1 py-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Continue to Final Confirmation
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+            </div>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Logout Confirmation Modal */}
-      <LogoutConfirmModal
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-      />
+      {/* Final Confirmation Modal */}
+      {showFinalConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="card p-8 max-w-md w-full soft-border border-red-200"
+          >
+            <div className="text-center space-y-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="text-6xl"
+              >
+                ⚠️
+              </motion.div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-red-600 mb-2">FINAL WARNING</h2>
+                <p className="text-text-secondary leading-relaxed">
+                  This action is <strong>PERMANENT</strong> and cannot be undone. All your stories, progress, and data will be deleted forever.
+                </p>
+              </div>
+
+              <div className="bg-red-100 p-4 rounded-lg">
+                <p className="text-sm text-red-700">
+                  Are you absolutely certain you want to delete your account?
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowFinalConfirm(false)}
+                  className="flex-1 py-3 px-4 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                >
+                  No, Keep My Account
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                  className="flex-1 py-3 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleting ? 'Deleting Account...' : 'Yes, Delete Forever'}
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 } 

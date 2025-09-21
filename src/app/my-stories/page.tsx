@@ -65,51 +65,29 @@ export default function MyStories() {
   }, []);
 
   const loadStories = async (userId?: string) => {
-    const targetUserId = userId || getUserId();
+    const targetUserId = userId || currentUser?.uid;
     console.log('🔍 Loading stories for user ID:', targetUserId);
     console.log('👤 Current user:', currentUser?.uid);
     
     if (!targetUserId) {
-      console.log('❌ No target user ID found');
+      console.log('❌ No authenticated user found');
       setLoading(false);
       return;
     }
 
-    // Also try to load stories for the anonymous ID as a fallback
-    const anonymousUserId = getUserId();
-    console.log('🆔 Fallback anonymous user ID:', anonymousUserId);
-
     try {
       const storiesRef = collection(db, 'stories');
-      let querySnapshot;
       
-      // Always try to load stories for the target user ID first
-      const q1 = query(storiesRef, where('userId', '==', targetUserId));
-      const snapshot1 = await getDocs(q1);
-      console.log('📚 Found', snapshot1.docs.length, 'stories for target user ID');
-      
-      // If we have stories for the target user ID, use those
-      if (snapshot1.docs.length > 0) {
-        console.log('✅ Found stories for target user ID, using those');
-        querySnapshot = snapshot1;
-      } else {
-        // If no stories found for target user ID, try anonymous ID as fallback
-        console.log('❌ No stories found for target user ID, trying anonymous ID');
-        if (anonymousUserId && anonymousUserId !== targetUserId) {
-          const q2 = query(storiesRef, where('userId', '==', anonymousUserId));
-          const snapshot2 = await getDocs(q2);
-          console.log('📚 Found', snapshot2.docs.length, 'stories for anonymous user ID');
-          querySnapshot = snapshot2;
-        } else {
-          console.log('❌ No anonymous user ID or same as target, using empty result');
-          querySnapshot = snapshot1; // Empty result
-        }
-      }
+      // Only query stories for the authenticated user
+      console.log('🔍 Querying stories for authenticated user ID:', targetUserId);
+      const q = query(storiesRef, where('userId', '==', targetUserId));
+      const querySnapshot = await getDocs(q);
+      console.log('📚 Found', querySnapshot.docs.length, 'stories for authenticated user');
       
       const loadedStories: Story[] = [];
       querySnapshot.docs.forEach((doc) => {
         const data = doc.data();
-        console.log('📖 Loading story:', doc.id, 'with userId:', data.userId);
+        console.log('📖 Loading story:', doc.id, 'with userId:', data.userId, 'title:', data.title);
         loadedStories.push({
           id: doc.id,
           title: data.title,
@@ -156,19 +134,7 @@ export default function MyStories() {
         isPublished: !currentStatus
       });
       
-      // If unpublishing, deduct coins
-      if (currentStatus) {
-        // Always use the authenticated user ID if available, otherwise use anonymous ID
-        const userId = currentUser?.uid || getUserId();
-        
-        if (userId) {
-          try {
-            await updateUserCoins(userId, -COIN_PENALTIES.UNPUBLISH_STORY, 'unpublish');
-          } catch (error) {
-            console.error('❌ Error during coin deduction:', error);
-          }
-        }
-      }
+      // No longer deduct coins for unpublishing
       
       setStories(prev => prev.map(story => 
         story.id === storyId 
@@ -349,20 +315,10 @@ export default function MyStories() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-warm-text mb-2">My Stories</h1>
-              <p className="text-sm sm:text-base text-text-secondary">
+              <h1 className="text-xl sm:text-2xl font-bold text-warm-text mb-1">My Stories</h1>
+              <p className="text-xs sm:text-sm text-text-secondary">
                 Manage your stories and track your writing progress
               </p>
-            </div>
-            <div className="flex gap-2 sm:gap-3">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => window.location.href = '/write-story'}
-                className="btn-primary glow-on-hover text-xs sm:text-sm py-2 px-3 sm:px-4"
-              >
-                ✍️ New Story
-              </motion.button>
             </div>
           </div>
 
@@ -511,23 +467,15 @@ export default function MyStories() {
           </div>
 
           {filteredStories.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-4xl sm:text-6xl mb-4">📚</div>
-              <h3 className="text-lg sm:text-xl font-bold text-warm-text mb-2">No stories found</h3>
-              <p className="text-text-secondary mb-6 text-sm sm:text-base">
+            <div className="text-center py-8">
+              <div className="text-3xl sm:text-4xl mb-3">📚</div>
+              <h3 className="text-base sm:text-lg font-bold text-warm-text mb-2">No stories found</h3>
+              <p className="text-text-secondary mb-4 text-xs sm:text-sm">
                 {activeTab === 'private' 
                   ? "You don't have any private stories yet." 
                   : "You haven't published any stories yet."
                 }
               </p>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => window.location.href = '/write-story'}
-                className="btn-primary glow-on-hover text-sm sm:text-base"
-              >
-                Write Your First Story
-              </motion.button>
             </div>
           )}
         </motion.div>
@@ -580,9 +528,6 @@ export default function MyStories() {
             <p className="text-text-secondary mb-6">
               Are you sure you want to unpublish this story? It will no longer be visible to the community.
             </p>
-            <p className="text-orange-600 text-sm mb-6 font-medium">
-              ⚠️ This action will deduct 5 coins from your balance.
-            </p>
             <div className="flex gap-3">
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -590,7 +535,7 @@ export default function MyStories() {
                 onClick={confirmUnpublish}
                 className="btn-secondary text-orange-600 flex-1"
               >
-                Unpublish (-5 coins)
+                Unpublish
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}

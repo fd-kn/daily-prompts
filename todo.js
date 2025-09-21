@@ -4,10 +4,14 @@
 
 // Deploy to Github
 //! Write your own prompts
-//! Name for app
-//! Mobile view !!! - few more pages
-//! Check logged out journey
-//! Delete unnecessary pages
+// Name for app
+// Mobile view !!! - few more pages
+// Creator message page
+// Fix coin issue - remove publish coins for now
+// MY STORIES NOT SHOWING STORIES
+// FIREBASE RULES - RUNNING OUT
+// Check logged out journey
+// Delete unnecessary pages
 // Add real special modes
 // Disable memberships for now
 //! Deploy on vercel

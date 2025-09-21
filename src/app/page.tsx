@@ -5,11 +5,61 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { getDailyPrompt } from '../lib/prompts';
 import { useRouter } from 'next/navigation';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import UsernameSetupModal from '../components/UsernameSetupModal';
 
 export default function Home() {
   const [dailyPrompt, setDailyPrompt] = useState(getDailyPrompt('micro'));
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  // Update the state and useEffect to fetch username
+  const [user, setUser] = useState<User | null>(null);
+  const [username, setUsername] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [showUsernameSetup, setShowUsernameSetup] = useState(false);
+
+  // Listen for authentication state and fetch username
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        // Fetch username from user's profile
+        try {
+          const { doc, getDoc } = await import('firebase/firestore');
+          const { db } = await import('../lib/firebase');
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const customUsername = userData.username;
+            
+            if (customUsername) {
+              // User has a username, proceed normally
+              setUsername(customUsername);
+              setShowUsernameSetup(false);
+            } else {
+              // No username set, show setup modal immediately
+              setUsername('');
+              setShowUsernameSetup(true);
+            }
+          } else {
+            // User document doesn't exist, show setup modal immediately
+            setUsername('');
+            setShowUsernameSetup(true);
+          }
+        } catch (error) {
+          console.error('Error fetching username:', error);
+          setUsername('');
+          setShowUsernameSetup(true);
+        }
+      } else {
+        setUsername('');
+        setShowUsernameSetup(false);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Calculate time until next midnight and update prompt
   useEffect(() => {
@@ -39,15 +89,43 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-text mx-auto"></div>
+          <p className="mt-4 text-warm-text">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 relative">
-        {/* Compact Scroll - Top Left - Hidden on mobile */}
+        {/* Compact Welcome Message for Logged-in Users */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-6 sm:mt-0 mb-3 sm:mb-4"
+          >
+            <div className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-100 rounded-lg border border-amber-200">
+              <span className="text-xl">👋</span>
+              <span className="text-base sm:text-lg font-medium text-warm-text italic">
+                Welcome back, {username || 'Writer'}!
+              </span>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Compact Scroll - Desktop: top left, Mobile: below buttons */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 hidden sm:block"
+          className="absolute top-4 left-4 z-10 hidden sm:block"
         >
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -60,7 +138,7 @@ export default function Home() {
               <motion.div
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.3 }}
-                className="text-2xl sm:text-3xl text-warm-text"
+                className="text-2xl md:text-3xl text-warm-text"
               >
                 📜
               </motion.div>
@@ -72,7 +150,7 @@ export default function Home() {
                 transition={{ duration: 0.3, delay: 0.5 }}
                 className="text-center"
               >
-                <p className="text-warm-text font-semibold text-xs">Open Me!</p>
+                <p className="text-warm-text font-semibold text-sm">Open Me!</p>
               </motion.div>
             </div>
           </motion.div>
@@ -178,7 +256,53 @@ export default function Home() {
               </Link>
             </motion.div>
           </motion.div>
+
+          {/* Creator Message Icon - Mobile only, below buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-6 sm:hidden"
+          >
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.push('/creator-message')}
+              className="cursor-pointer inline-block"
+            >
+              <div className="relative">
+                {/* Scroll */}
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-2xl text-warm-text"
+                >
+                  📜
+                </motion.div>
+                
+                {/* "Open Me" Text */}
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.8 }}
+                  className="text-center"
+                >
+                  <p className="text-warm-text font-semibold text-sm">Open Me!</p>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
+
+        {/* Username Setup Modal */}
+        <UsernameSetupModal
+          isOpen={showUsernameSetup}
+          onComplete={(newUsername) => {
+            setUsername(newUsername);
+            setShowUsernameSetup(false);
+          }}
+          userId={user?.uid || ''}
+        />
 
       </div>
     </div>

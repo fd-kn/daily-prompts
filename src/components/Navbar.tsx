@@ -152,16 +152,16 @@ export default function Navbar() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-18">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-2xl sm:text-3xl"
+                className="text-xl sm:text-2xl"
               >
                 ✍️
               </motion.div>
-              <span className="text-lg sm:text-xl font-bold text-warm-text hidden sm:block">
-                Story Prompt
+              <span className="text-base sm:text-lg font-bold text-warm-text">
+                StoryMode
               </span>
             </Link>
 
@@ -267,22 +267,123 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-3 rounded-lg hover:bg-card-hover transition-colors"
-            >
-              <div className="w-6 h-6 flex flex-col justify-center items-center">
-                <span className={`block w-5 h-0.5 bg-amber-700 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
-                <span className={`block w-5 h-0.5 bg-amber-700 transition-all duration-300 mt-1 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                <span className={`block w-5 h-0.5 bg-amber-700 transition-all duration-300 mt-1 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></span>
-              </div>
-            </motion.button>
+            {/* Mobile Section */}
+            <div className="md:hidden flex items-center gap-3">
+              {/* Mobile Coin Display - Only show when user is logged in */}
+              {user && (
+                <Link href="/progress">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-br from-amber-200 to-amber-400 cursor-pointer shadow-lg border-2 border-amber-300 hover:shadow-xl transition-all duration-300 ease-out"
+                  >
+                    <span className="text-lg">💰</span>
+                    <span className="text-sm font-bold text-amber-800">
+                      {userCoins}
+                    </span>
+                  </motion.div>
+                </Link>
+              )}
+
+              {/* Mobile Menu Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-4 rounded-lg hover:bg-card-hover transition-colors"
+              >
+                <div className="w-8 h-8 flex flex-col justify-center items-center relative">
+                  <span className={`block w-6 h-0.5 bg-amber-700 transition-all duration-300 absolute ${isMobileMenuOpen ? 'rotate-45' : 'rotate-0 -translate-y-1'}`}></span>
+                  <span className={`block w-6 h-0.5 bg-amber-700 transition-all duration-300 absolute ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`block w-6 h-0.5 bg-amber-700 transition-all duration-300 absolute ${isMobileMenuOpen ? '-rotate-45' : 'rotate-0 translate-y-1'}`}></span>
+                </div>
+              </motion.button>
+            </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-border-color bg-background"
+          >
+            <div className="py-4 space-y-2">
+              {/* Navigation Links */}
+              {navigationLinks.map((link) => (
+                <Link key={link.href} href={link.href}>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      // Add a small delay before closing to make navigation smoother
+                      setTimeout(() => setIsMobileMenuOpen(false), 150);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg mx-2 ${
+                      pathname === link.href 
+                        ? 'bg-gradient-primary text-white' 
+                        : 'hover:bg-card-hover text-warm-text'
+                    }`}
+                  >
+                    <span className="text-lg">{link.icon}</span>
+                    <span className="font-medium">{link.label}</span>
+                  </motion.div>
+                </Link>
+              ))}
+
+              {/* User Menu */}
+              {user ? (
+                <div className="pt-4 border-t border-border-color">
+                  <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg mx-2 hover:bg-card-hover text-warm-text">
+                      <span className="text-lg">👤</span>
+                      <span className="font-medium">Profile</span>
+                    </div>
+                  </Link>
+                  <Link href="/my-stories" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg mx-2 hover:bg-card-hover text-warm-text">
+                      <span className="text-lg">📚</span>
+                      <span className="font-medium">My Stories</span>
+                    </div>
+                  </Link>
+                  <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)}>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-lg mx-2 hover:bg-card-hover text-warm-text">
+                      <span className="text-lg">⚙️</span>
+                      <span className="font-medium">Settings</span>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setShowLogoutConfirm(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg mx-2 hover:bg-red-50 text-red-600 w-full text-left"
+                  >
+                    <span className="text-lg"></span>
+                    <span className="font-medium">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-4 border-t border-border-color px-4">
+                  <button
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full btn-primary glow-on-hover text-center py-3"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Modals */}
       <LogoutConfirmModal

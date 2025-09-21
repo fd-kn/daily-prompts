@@ -252,6 +252,9 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
       await updateDoc(doc(db, 'stories', story.id), {
         isPublished: true
       });
+      
+      // No longer award coins for publishing
+      
       // Reload the story to reflect the change
       loadStory();
     } catch (error) {
@@ -267,12 +270,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
         isPublished: false
       });
       
-      // Deduct coins for unpublishing
-      if (story.userId && isOwnStory(story.userId)) {
-        // Use the current authenticated user ID if available, otherwise use the story's user ID
-        const userId = currentUser?.uid || story.userId;
-        await updateUserCoins(userId, -COIN_PENALTIES.UNPUBLISH_STORY, 'unpublish');
-      }
+      // No longer deduct coins for unpublishing
       
       // Reload the story to reflect the change
       loadStory();
@@ -372,14 +370,14 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto p-8">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-4 sm:mb-8"
         >
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -391,13 +389,21 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                 router.push('/read?section=personal');
               } else if (fromSection === 'public') {
                 router.push('/read?section=public');
+              } else if (fromSection === 'daily-challenges') {
+                router.push('/daily-challenges');
               } else {
                 router.push('/read');
               }
             }}
-            className="btn-secondary glow-on-hover"
+            className="btn-secondary glow-on-hover text-sm sm:text-base py-2 px-4"
           >
-            ← Back to {fromSection === 'my-stories' ? 'My Stories' : fromSection === 'personal' ? 'My Stories' : fromSection === 'public' ? 'Read Section' : 'Read Section'}
+            ← Back to {
+              fromSection === 'my-stories' ? 'My Stories' : 
+              fromSection === 'personal' ? 'My Stories' : 
+              fromSection === 'public' ? 'Read Section' : 
+              fromSection === 'daily-challenges' ? 'Daily Challenges' :
+              'Read Section'
+            }
           </motion.button>
         </motion.div>
 
@@ -406,7 +412,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
           initial={{ opacity: 0, y: 20, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className={`p-8 mb-8 ${story.status === 'published' ? '' : 'card soft-border'}`}
+          className={`p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 ${story.status === 'published' ? '' : 'card soft-border'}`}
         >
           {editing ? (
             <motion.div
@@ -477,7 +483,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
               className="space-y-8"
             >
               {/* Metadata Section */}
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div>
                   <h1 className="text-3xl font-bold warm-text mb-3">
                     {story.title}
@@ -496,19 +502,21 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                     By <span className="font-medium text-warm-text">{story.authorName || 'Anonymous'}</span>
                   </p>
                 </div>
+
+
+
+                
                 {/* Action buttons for personal stories - only show when viewing from My Stories section */}
-                {story.userId && isOwnStory(story.userId) && (fromSection === 'personal' || fromSection === 'my-stories') && (
-                  <div className="flex gap-3">
-                      <motion.button 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="btn-secondary glow-on-hover"
-                        onClick={() => setEditing(true)}
-                      >
-                        Edit
-                      </motion.button>
+                {story.userId && story.userId === currentUser?.uid && fromSection === 'my-stories' && (                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="btn-secondary glow-on-hover w-full sm:w-auto text-sm sm:text-base py-2 px-4"
+                      onClick={() => setEditing(true)}
+                    >
+                      Edit
+                    </motion.button>
                     
-                    {/* Publish/Unpublish button */}
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -522,7 +530,6 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                       {story.isPublished ? 'Unpublish' : 'Publish'}
                     </motion.button>
                     
-                    {/* Delete button */}
                     <motion.button 
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -833,11 +840,8 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                 className="card p-8 max-w-md mx-4"
               >
                 <h3 className="text-xl font-bold warm-text mb-4">Confirm Unpublish</h3>
-                <p className="text-text-secondary mb-4">
+                <p className="text-text-secondary mb-6">
                   Are you sure you want to unpublish this story? It will no longer be visible to the community.
-                </p>
-                <p className="text-orange-600 text-sm mb-6 font-medium">
-                  ⚠️ This action will deduct 5 coins from your balance.
                 </p>
                 <div className="flex gap-4">
                   <motion.button
@@ -851,7 +855,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="bg-yellow-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-yellow-700"
+                    className="btn-primary glow-on-hover"
                     onClick={handleUnpublish}
                   >
                     Yes, Unpublish
