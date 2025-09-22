@@ -167,21 +167,6 @@ export default function WriteStory() {
     setIsSubmitting(true);
       
     try {
-      // Check if user has already submitted today using the tracker
-      const userId = getUserId();
-      if (!userId) {
-        setIsSubmitting(false);
-        return;
-      }
-      
-      const alreadySubmittedToday = await hasSubmittedToday(userId);
-
-      // Only award coins for writing (not publishing)
-      let coinsEarned = 0;
-      if (!alreadySubmittedToday) {
-        coinsEarned += 10; // 10 coins for first story written today
-      }
-      
       // Get author name
       let authorName = 'Anonymous';
       
@@ -200,8 +185,7 @@ export default function WriteStory() {
       // Update the existing story to published instead of creating a new one
       if (submittedStoryId) {
         await updateDoc(doc(db, 'stories', submittedStoryId), {
-          isPublished: true,
-          coinsEarned: coinsEarned // Update coins earned
+          isPublished: true
         });
       } else {
         // Fallback: create new story if no submittedStoryId
@@ -216,33 +200,12 @@ export default function WriteStory() {
           promptText: dailyPrompt.text,
           promptDescription: dailyPrompt.description,
           userId: currentUser?.uid || getUserId(),
-          coinsEarned: coinsEarned,
           isPublished: true
         });
       }
-
-      // Update user coins and check badges only if coins were earned for writing
-      const currentUserId = currentUser ? currentUser.uid : getUserId();
-      
-      if (currentUserId && coinsEarned > 0) {
-        await updateUserCoins(currentUserId, coinsEarned, 'story');
-        
-        // Check for new badges
-        const userCoins = await getUserCoins(currentUserId);
-        if (userCoins) {
-          const newBadges = await checkAndAwardBadges(currentUserId, userCoins);
-          if (newBadges.length > 0) {
-            console.log('New badges earned:', newBadges);
-          }
-        }
-        
-        // Show points notification
-        setPointsEarned(coinsEarned);
-        setNotificationType('story');
-        setShowPointsNotification(true);
-      }
       
       // Mark as published today (for tracking purposes)
+      const userId = currentUser?.uid || getUserId();
       if (userId) {
         await markPublishedToday(userId);
       }

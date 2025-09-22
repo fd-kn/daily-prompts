@@ -139,7 +139,7 @@ export default function CreatorMessage() {
               I'd really love your honest feedback — what feels fun, what feels clunky, what you'd change, and what you'd love to see added. Don't hold back! Be mean, tell me if it sucks, or if it's something you'd genuinely use.
             </p>
             <p>
-              If you sign up for the waiting list, I'll keep you updated as new features roll out. Plus, as a thank you for being an early tester, you'll get a special membership later on that won't be available to anyone else.
+              If you sign up for the waiting list, I'll keep you updated as new features roll out. Plus, as a thank you for being an early tester and for joining the waiting list, you'll get a special membership later on that won't be available to anyone else.
             </p>
             <p>
               Thanks again for being here at the start — I hope this platform grows into something you'll enjoy using.
@@ -228,7 +228,7 @@ export default function CreatorMessage() {
             Share Your Feedback
           </h3>
           <p className="text-text-secondary text-center mb-4 text-sm">
-            Tell me what you think! What's working, what's not, and what you'd love to see added.
+          Tell me what you think! What’s working, what’s not, and what you’d like to see added. Feedback is anonymous and super appreciated.
           </p>
 
           {isFeedbackSubmitted ? (
