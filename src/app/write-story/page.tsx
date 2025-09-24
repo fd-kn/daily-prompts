@@ -196,7 +196,6 @@ export default function WriteStory() {
           createdAt: new Date(),
           competitionId: 'micro',
           wordCount: getWordCount(story),
-          promptCategory: dailyPrompt.category,
           promptText: dailyPrompt.text,
           promptDescription: dailyPrompt.description,
           userId: currentUser?.uid || getUserId(),
@@ -264,7 +263,6 @@ export default function WriteStory() {
         createdAt: new Date(),
         competitionId: 'micro',
         wordCount: getWordCount(story),
-        promptCategory: dailyPrompt.category,
         promptText: dailyPrompt.text,
         promptDescription: dailyPrompt.description,
         userId: currentUser?.uid || getUserId(), // Use authenticated user ID first

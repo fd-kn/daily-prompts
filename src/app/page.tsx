@@ -19,6 +19,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showUsernameSetup, setShowUsernameSetup] = useState(false);
 
+  // Scroll to top on page load/reload
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Listen for authentication state and fetch username
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -58,62 +63,53 @@ export default function Home() {
       }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
-  // Calculate time until next midnight and update prompt
+  // Update countdown timer
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    const updateTimer = () => {
       const now = new Date();
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(0, 0, 0, 0);
       
-      const difference = tomorrow.getTime() - now.getTime();
+      const diff = tomorrow.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
       
-      if (difference > 0) {
-        const hours = Math.floor(difference / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-        
-        setTimeLeft({ hours, minutes, seconds });
-      } else {
-        // It's past midnight, update the prompt
-        setDailyPrompt(getDailyPrompt('micro'));
-      }
+      setTimeLeft({ hours, minutes, seconds });
     };
 
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-warm-text mx-auto"></div>
-          <p className="mt-4 text-warm-text">Loading...</p>
-        </div>
+        <div className="text-warm-text">Loading...</div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 relative">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 lg:px-6 py-1 sm:py-2 relative">
         {/* Compact Welcome Message for Logged-in Users */}
         {user && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-6 sm:mt-0 mb-3 sm:mb-4"
+            className="mt-2 sm:mt-1 mb-2 sm:mb-3"
           >
-            <div className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-100 rounded-lg border border-amber-200">
-              <span className="text-xl">👋</span>
-              <span className="text-base sm:text-lg font-medium text-warm-text italic">
+            <div className="flex items-center justify-center gap-2 px-2 py-1.5 bg-amber-100 rounded-lg border border-amber-200">
+              <span className="text-lg">👋</span>
+              <span className="text-sm sm:text-base font-medium text-warm-text italic">
                 Welcome back, {username || 'Writer'}!
               </span>
             </div>
@@ -125,7 +121,7 @@ export default function Home() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="absolute top-4 left-4 z-10 hidden sm:block"
+          className="absolute top-2 left-2 z-10 hidden sm:block"
         >
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -138,7 +134,7 @@ export default function Home() {
               <motion.div
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.3 }}
-                className="text-2xl md:text-3xl text-warm-text"
+                className="text-xl md:text-2xl text-warm-text"
               >
                 📜
               </motion.div>
@@ -150,7 +146,7 @@ export default function Home() {
                 transition={{ duration: 0.3, delay: 0.5 }}
                 className="text-center"
               >
-                <p className="text-warm-text font-semibold text-sm">Open Me!</p>
+                <p className="text-warm-text font-semibold text-xs">Open Me!</p>
               </motion.div>
             </div>
           </motion.div>
@@ -161,13 +157,13 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-4 sm:mb-6"
+          className="text-center mb-3 sm:mb-4"
         >
           <motion.h1 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-xl sm:text-2xl md:text-3xl font-bold warm-text mt-4 sm:mt-6 mb-3 sm:mb-4"
+            className="text-lg sm:text-xl md:text-2xl font-bold warm-text mt-2 sm:mt-3 mb-2 sm:mb-3"
           >
             Daily Story Challenge
           </motion.h1>
@@ -175,9 +171,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="text-sm sm:text-base text-text-secondary mb-3 sm:mb-4 px-4"
+            className="text-xs sm:text-sm text-text-secondary mb-2 sm:mb-3 px-3"
           >
-            100-250 words • Daily prompts • Earn coins
+            100–250 words • Daily prompts • Earn coins — write in any style you like: funny, serious, creepy, or mix it up! Have fun with it!
           </motion.p>
           
           {/* Daily Challenge Info */}
@@ -185,38 +181,41 @@ export default function Home() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-4 sm:mb-6"
+            className="mb-3 sm:mb-4"
           >
-            <div className="card p-3 sm:p-4 inline-block max-w-2xl w-full mx-2 sm:mx-0 soft-border">
+            <div className="card p-2.5 sm:p-3 inline-block max-w-2xl w-full mx-1 sm:mx-0 soft-border">
 
-              <p className="text-warm-text font-medium text-sm sm:text-base mb-2 sm:mb-3">
+              <p className="text-warm-text font-medium text-xs sm:text-sm mb-1.5 sm:mb-2">
                 Today's prompt:
               </p>
-              <div className="mb-3 sm:mb-4">
-                <h3 className="text-base sm:text-lg text-warm-text font-semibold leading-relaxed">{dailyPrompt.text}</h3>
+              <div className="mb-2 sm:mb-3">
+                <h3 className="text-sm sm:text-base text-warm-text font-semibold leading-relaxed mb-1.5">{dailyPrompt.text}</h3>
+                {dailyPrompt.description && (
+                  <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">{dailyPrompt.description}</p>
+                )}
               </div>
 
               {/* Countdown Timer */}
-              <div className="border-t border-border-color pt-2 sm:pt-3">
-                <p className="text-text-secondary text-xs mb-2">Next prompt in:</p>
-                <div className="flex justify-center gap-2 sm:gap-3">
+              <div className="border-t border-border-color pt-1.5 sm:pt-2">
+                <p className="text-text-secondary text-xs mb-1.5">Next prompt in:</p>
+                <div className="flex justify-center gap-1.5 sm:gap-2">
                   <div className="text-center">
-                    <div className="bg-gradient-primary text-warm-white px-2 py-1.5 rounded-lg font-bold text-sm">
+                    <div className="bg-gradient-primary text-warm-white px-1.5 py-1 rounded-lg font-bold text-xs">
                       {timeLeft.hours.toString().padStart(2, '0')}
                     </div>
-                    <p className="text-xs text-text-muted mt-1">Hours</p>
+                    <p className="text-xs text-text-muted mt-0.5">Hours</p>
                   </div>
                   <div className="text-center">
-                    <div className="bg-gradient-primary text-warm-white px-2 py-1.5 rounded-lg font-bold text-sm">
+                    <div className="bg-gradient-primary text-warm-white px-1.5 py-1 rounded-lg font-bold text-xs">
                       {timeLeft.minutes.toString().padStart(2, '0')}
                     </div>
-                    <p className="text-xs text-text-muted mt-1">Minutes</p>
+                    <p className="text-xs text-text-muted mt-0.5">Minutes</p>
                   </div>
                   <div className="text-center">
-                    <div className="bg-gradient-primary text-warm-white px-2 py-1.5 rounded-lg font-bold text-sm">
+                    <div className="bg-gradient-primary text-warm-white px-1.5 py-1 rounded-lg font-bold text-xs">
                       {timeLeft.seconds.toString().padStart(2, '0')}
                     </div>
-                    <p className="text-xs text-text-muted mt-1">Seconds</p>
+                    <p className="text-xs text-text-muted mt-0.5">Seconds</p>
                   </div>
                 </div>
               </div>
@@ -228,7 +227,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-center justify-center px-4"
+            className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 items-center justify-center px-3"
           >
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -237,7 +236,7 @@ export default function Home() {
             >
               <Link 
                 href="/write-story"
-                className="inline-block btn-secondary glow-on-hover text-sm sm:text-base font-medium w-full sm:w-auto text-center py-2.5 sm:py-2 px-5 sm:px-4"
+                className="inline-block btn-secondary glow-on-hover text-xs sm:text-sm font-medium w-full sm:w-auto text-center py-2 sm:py-1.5 px-4 sm:px-3"
               >
                 Start Today's Challenge
               </Link>
@@ -250,7 +249,7 @@ export default function Home() {
             >
               <Link 
                 href="/daily-challenges"
-                className="inline-block btn-secondary glow-on-hover text-sm sm:text-base font-medium w-full sm:w-auto text-center py-2.5 sm:py-2 px-5 sm:px-4"
+                className="inline-block btn-secondary glow-on-hover text-xs sm:text-sm font-medium w-full sm:w-auto text-center py-2 sm:py-1.5 px-4 sm:px-3"
               >
                 View Today's Entries
               </Link>
@@ -262,7 +261,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
-            className="mt-6 sm:hidden"
+            className="mt-4 sm:hidden"
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -275,7 +274,7 @@ export default function Home() {
                 <motion.div
                   whileHover={{ y: -5 }}
                   transition={{ duration: 0.3 }}
-                  className="text-2xl text-warm-text"
+                  className="text-xl text-warm-text"
                 >
                   📜
                 </motion.div>
@@ -287,7 +286,7 @@ export default function Home() {
                   transition={{ duration: 0.3, delay: 0.8 }}
                   className="text-center"
                 >
-                  <p className="text-warm-text font-semibold text-sm">Open Me!</p>
+                  <p className="text-warm-text font-semibold text-xs">Open Me!</p>
                 </motion.div>
               </div>
             </motion.div>
