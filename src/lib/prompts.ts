@@ -51,11 +51,6 @@ export interface Prompt {
   // For testing purposes - allows simulating different dates
   let testDate: Date | null = null;
   
-  export function setTestDate(date: Date | null) {
-    testDate = date;
-    console.log('🧪 Test date set to:', date ? date.toDateString() : 'null (using real date)');
-  }
-  
   export function getDailyPrompt(competitionId: string): Prompt {
     const competitionPrompts = prompts[competitionId as keyof typeof prompts] || prompts.micro;
     

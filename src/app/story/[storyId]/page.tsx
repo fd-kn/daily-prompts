@@ -6,7 +6,6 @@ import { db } from '../../../lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isOwnStory, clearSubmissionRecord } from '../../../lib/userUtils';
-import { updateUserCoins, COIN_PENALTIES } from '../../../lib/coinSystem';
 import { auth } from '../../../lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 

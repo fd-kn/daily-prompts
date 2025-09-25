@@ -19,18 +19,6 @@ function generateUUID(): string {
   });
 }
 
-// Check if user has already submitted a story today
-export function hasSubmittedToday(): boolean {
-  const today = new Date().toDateString();
-  const lastSubmission = localStorage.getItem('lastDailySubmission');
-  return lastSubmission === today;
-}
-
-// Mark that user has submitted today
-export function markSubmittedToday(): void {
-  const today = new Date().toDateString();
-  localStorage.setItem('lastDailySubmission', today);
-}
 
 // Clear the submission record (for when user deletes their story)
 export function clearSubmissionRecord(): void {
@@ -42,19 +30,3 @@ export function isOwnStory(storyUserId: string): boolean {
   const currentUserId = getUserId();
   return storyUserId === currentUserId;
 }
-
-// TEMPORARY: Test function to reset user data (remove in production)
-export function resetUserData(): void {
-  localStorage.removeItem('storyPlatformUserId');
-  localStorage.removeItem('lastDailySubmission');
-  console.log('User data reset. Refresh the page to get a new user ID.');
-}
-
-// TEMPORARY: Test function to show current user info (remove in production)
-export function showUserInfo(): void {
-  const userId = getUserId();
-  const hasSubmitted = hasSubmittedToday();
-  console.log('Current User ID:', userId);
-  console.log('Has submitted today:', hasSubmitted);
-  console.log('To reset user data, call: resetUserData()');
-} 

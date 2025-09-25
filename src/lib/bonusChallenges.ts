@@ -155,91 +155,6 @@ export const bonusChallenges: BonusChallenge[] = [
   }
 ];
 
-// Get a random bonus challenge for the day
-export function getDailyBonusChallenge(competitionId: string = 'micro'): BonusChallenge {
-  const today = new Date();
-  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-  
-  // Use day of year to get consistent challenge for the day (same logic as daily prompts)
-  const challengeIndex = dayOfYear % bonusChallenges.length;
-  return bonusChallenges[challengeIndex];
-}
-
-// Check if a story meets the bonus challenge criteria
-export function checkBonusChallenge(story: string, challenge: BonusChallenge): boolean {
-  const lowerStory = story.toLowerCase();
-  
-  switch (challenge.type) {
-    case 'word':
-      if (challenge.id === 'word-repetition') {
-        const wordCount = (lowerStory.match(/whisper/g) || []).length;
-        return wordCount === 5;
-      } else if (challenge.id === 'word-variety') {
-        return lowerStory.includes('serendipity');
-      } else if (challenge.id === 'word-sound') {
-        const wordCount = (lowerStory.match(/echo/g) || []).length;
-        return wordCount >= 3;
-      } else if (challenge.id === 'word-color') {
-        return lowerStory.includes('crimson');
-      }
-      break;
-      
-    case 'object':
-      if (challenge.id === 'object-clock') {
-        return lowerStory.includes('clock') || lowerStory.includes('broken');
-      } else if (challenge.id === 'object-mirror') {
-        return lowerStory.includes('mirror');
-      } else if (challenge.id === 'object-key') {
-        return lowerStory.includes('key');
-      } else if (challenge.id === 'object-book') {
-        return lowerStory.includes('book') || lowerStory.includes('tome');
-      }
-      break;
-      
-    case 'structure':
-      if (challenge.id === 'structure-dialogue') {
-        const dialogueCount = (lowerStory.match(/"/g) || []).length / 2;
-        return dialogueCount === 3;
-      } else if (challenge.id === 'structure-question') {
-        return lowerStory.trim().endsWith('?');
-      } else if (challenge.id === 'structure-repetition') {
-        const sentences = lowerStory.split(/[.!?]+/).filter(s => s.trim().length > 0);
-        if (sentences.length < 2) return false;
-        const first = sentences[0].trim();
-        const last = sentences[sentences.length - 1].trim();
-        return first === last;
-      }
-      break;
-      
-    // For emotion and theme challenges, we'll use a simple keyword check
-    // In a real implementation, you might want more sophisticated analysis
-    case 'emotion':
-    case 'theme':
-      const keywords = {
-        'emotion-fear': ['fear', 'terrified', 'scared', 'horror', 'panic'],
-        'emotion-joy': ['joy', 'happy', 'delighted', 'ecstatic', 'elated'],
-        'emotion-nostalgia': ['memory', 'remember', 'past', 'childhood', 'nostalgic'],
-        'theme-redemption': ['redemption', 'forgiveness', 'forgive', 'second chance'],
-        'theme-transformation': ['transform', 'change', 'become', 'metamorphosis'],
-        'theme-discovery': ['discover', 'reveal', 'truth', 'secret', 'hidden']
-      };
-      
-      const challengeKeywords = keywords[challenge.id as keyof typeof keywords] || [];
-      return challengeKeywords.some(keyword => lowerStory.includes(keyword));
-  }
-  
-  return false;
-}
-
-// Get difficulty color for UI
-export function getDifficultyColor(difficulty: string): string {
-  switch (difficulty) {
-    case 'easy': return 'text-green-500';
-    case 'medium': return 'text-yellow-500';
-    case 'hard': return 'text-red-500';
-    default: return 'text-gray-500';
-  }
-}
 
 // Get difficulty badge color
 export function getDifficultyBadgeColor(difficulty: string): string {
@@ -250,14 +165,3 @@ export function getDifficultyBadgeColor(difficulty: string): string {
     default: return 'bg-gray-100 text-gray-800';
   }
 }
-
-// Get bonus challenges by type (for future use with different competition types)
-export function getBonusChallengesByType(type: string): BonusChallenge[] {
-  return bonusChallenges.filter(challenge => challenge.type === type);
-}
-
-// Get a random bonus challenge (for testing or special events)
-export function getRandomBonusChallenge(): BonusChallenge {
-  const randomIndex = Math.floor(Math.random() * bonusChallenges.length);
-  return bonusChallenges[randomIndex];
-} 
