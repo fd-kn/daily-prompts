@@ -3,7 +3,7 @@
 //* Forget issues for now! Just share it and see what happens. Just do the below tasks:
 
 // Deploy to Github
-//! Write your own prompts
+// Write your own prompts
 // Name for app
 // Mobile view !!! - few more pages
 // Creator message page

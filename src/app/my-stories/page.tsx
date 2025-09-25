@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { collection, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { getUserId } from '../../lib/userUtils';
-import { updateUserCoins, COIN_PENALTIES } from '../../lib/coinSystem';
+import { updateUserCoins } from '../../lib/coinSystem';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Link from 'next/link';
 

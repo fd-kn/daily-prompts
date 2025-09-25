@@ -9,7 +9,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import LogoutConfirmModal from './LogoutConfirmModal';
 import LoginModal from './LoginModal';
-import { getUserCoins, updateUserCoins } from '../lib/coinSystem';
+import { getUserCoins } from '../lib/coinSystem';
 import { getUserId } from '../lib/userUtils';
 
 export default function Navbar() {

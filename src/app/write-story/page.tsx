@@ -10,10 +10,10 @@ import { getDailyPrompt } from '../../lib/prompts';
 import { getUserId } from '../../lib/userUtils';
 
 
-import { updateUserCoins, COIN_REWARDS, checkAndAwardBadges, getUserCoins } from '../../lib/coinSystem';
+import { updateUserCoins, checkAndAwardBadges, getUserCoins } from '../../lib/coinSystem';
 import PointsNotification from '../../components/PointsNotification';
 import { auth } from '../../lib/firebase';
-import { hasSubmittedToday, markSubmittedToday, hasPublishedToday, markPublishedToday } from '../../lib/dailySubmissionTracker';
+import { hasSubmittedToday, markSubmittedToday, markPublishedToday } from '../../lib/dailySubmissionTracker';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
 export default function WriteStory() {
