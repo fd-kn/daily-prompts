@@ -451,13 +451,13 @@ export default function WriteStory() {
               <div className="text-center space-y-4">
                 <div className="text-4xl mb-4">📝</div>
                 <p className="text-xl font-medium text-warm-text">You&apos;ve already submitted a story today!</p>
-                <p className="text-base text-text-secondary">You can write another story, but you won't earn additional points for today.</p>
+                <p className="text-base text-text-secondary">You can write another story, but you won&apos;t earn additional points for today.</p>
                 <div className="mt-6 space-y-3">
                   <Link 
                     href="/daily-challenges"
                     className="btn-secondary glow-on-hover w-full sm:w-auto block sm:inline-block"
                   >
-                    View Today's Entries
+                    View Today&apos;s Entries
                   </Link>
                   <button
                     onClick={() => {
@@ -665,7 +665,7 @@ export default function WriteStory() {
               >
                 <h3 className="text-xl font-bold warm-text mb-4">Confirm Save</h3>
                 <p className="text-text-secondary mb-6">
-                  Are you sure you want to save your story to drafts? You can find your drafts in 'My Stories' in the profile dropdown.
+                  Are you sure you want to save your story to drafts? You can find your drafts in &apos;My Stories&apos; in the profile dropdown.
                 </p>
                 <div className="flex gap-4">
                   <motion.button

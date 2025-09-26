@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import { doc, getDoc, updateDoc, deleteDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -58,13 +58,6 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
   const [userProfile, setUserProfile] = useState<{ username?: string }>({});
   const router = useRouter();
 
-  useEffect(() => {
-    loadStory();
-    if (storyId) {
-      loadComments();
-    }
-  }, [storyId]);
-
   // Listen for authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -95,7 +88,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
     }
   }, [editing, editTitle, editStory, story]);
 
-  const loadStory = async () => {
+  const loadStory = useCallback(async () => {
     try {
       const docRef = doc(db, 'stories', storyId);
       const docSnap = await getDoc(docRef);
@@ -158,9 +151,9 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
     } finally {
       setLoading(false);
     }
-  };
+  }, [storyId, currentUser]);
 
-  const loadComments = () => {
+  const loadComments = useCallback(() => {
     if (!storyId) return;
     
     const commentsQuery = query(
@@ -178,7 +171,14 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
     });
     
     return unsubscribe;
-  };
+  }, [storyId]);
+
+  useEffect(() => {
+    loadStory();
+    if (storyId) {
+      loadComments();
+    }
+  }, [storyId, loadStory, loadComments]);
 
   const handleSaveEdit = async () => {
     if (!story || !editTitle.trim() || !editStory.trim()) return;
@@ -361,7 +361,7 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
           </motion.button>
           <div className="text-center mt-8">
             <h1 className="text-2xl font-bold warm-text mb-4">Story Not Found</h1>
-            <p className="text-text-secondary">The story you're looking for doesn't exist.</p>
+            <p className="text-text-secondary">The story you&apos;re looking for doesn&apos;t exist.</p>
           </div>
         </div>
       </div>

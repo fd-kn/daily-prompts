@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -84,7 +84,7 @@ export default function DailyChallenges() {
     }
   };
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filteredStories = [...allStories];
     
     // Apply time filter
@@ -134,11 +134,11 @@ export default function DailyChallenges() {
     }
     
     setStories(filteredStories);
-  };
+  }, [allStories, timeFilter, sortBy]);
 
   useEffect(() => {
     applyFilters();
-  }, [timeFilter, sortBy, allStories]);
+  }, [timeFilter, sortBy, allStories, applyFilters]);
 
   // Remove toggleView function as it's no longer needed
 

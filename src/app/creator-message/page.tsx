@@ -133,16 +133,16 @@ export default function CreatorMessage() {
               Hi there! Thanks so much for checking this out.
             </p>
             <p>
-              This is very much a beta, which means things might look a little weird, feel unfinished, or even break completely 🙃. I'm testing the core idea right now, and pretty much everything is still open to change.
+              This is very much a beta, which means things might look a little weird, feel unfinished, or even break completely 🙃. I&apos;m testing the core idea right now, and pretty much everything is still open to change.
             </p>
             <p>
-              I'd really love your honest feedback — what feels fun, what feels clunky, what you'd change, and what you'd love to see added. Don't hold back! Be mean, tell me if it sucks, or if it's something you'd genuinely use.
+              I&apos;d really love your honest feedback — what feels fun, what feels clunky, what you&apos;d change, and what you&apos;d love to see added. Don&apos;t hold back! Be mean, tell me if it sucks, or if it&apos;s something you&apos;d genuinely use.
             </p>
             <p>
-              If you sign up for the waiting list, I'll keep you updated as new features roll out. Plus, as a thank you for being an early tester and for joining the waiting list, you'll get a special membership later on that won't be available to anyone else.
+              If you sign up for the waiting list, I&apos;ll keep you updated as new features roll out. Plus, as a thank you for being an early tester and for joining the waiting list, you&apos;ll get a special membership later on that won&apos;t be available to anyone else.
             </p>
             <p>
-              Thanks again for being here at the start — I hope this platform grows into something you'll enjoy using.
+              Thanks again for being here at the start — I hope this platform grows into something you&apos;ll enjoy using.
             </p>
             <p className="font-semibold text-warm-text">
               Happy writing! ✍️
@@ -171,8 +171,8 @@ export default function CreatorMessage() {
               className="text-center p-3 bg-green-50 rounded-lg border border-green-200"
             >
               <div className="text-xl mb-1">🎉</div>
-              <p className="text-green-800 font-semibold text-sm">You're on the list!</p>
-              <p className="text-green-700 text-xs">We'll notify you as soon as the new features are ready.</p>
+              <p className="text-green-800 font-semibold text-sm">You&apos;re on the list!</p>
+              <p className="text-green-700 text-xs">We&apos;ll notify you as soon as the new features are ready.</p>
             </motion.div>
           ) : (
             <form onSubmit={handleEmailSubmit} className="space-y-3">
@@ -228,7 +228,7 @@ export default function CreatorMessage() {
             Share Your Feedback
           </h3>
           <p className="text-text-secondary text-center mb-4 text-sm">
-          Tell me what you think! What’s working, what’s not, and what you’d like to see added. Feedback is anonymous and super appreciated.
+          Tell me what you think! What&apos;s working, what&apos;s not, and what you&apos;d like to see added. Feedback is anonymous and super appreciated.
           </p>
 
           {isFeedbackSubmitted ? (

@@ -83,9 +83,9 @@ export default function WriteCompetition() {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   };
 
-  const hasUnsavedChanges = () => {
+  const hasUnsavedChanges = useCallback(() => {
     return mode === 'casual' && (title.trim() || story.trim());
-  };
+  }, [mode, title, story]);
 
   const handleSaveDraft = async () => {
     if (!title.trim() || !competition) return;
@@ -127,7 +127,7 @@ export default function WriteCompetition() {
       e.preventDefault();
       e.returnValue = '';
     }
-  }, [title, story, mode]);
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);

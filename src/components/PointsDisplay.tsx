@@ -7,7 +7,7 @@ import { getUserId } from '../lib/userUtils';
 import Link from 'next/link';
 
 export default function PointsDisplay() {
-  const [progress, setProgress] = useState<any>(null);
+  const [progress, setProgress] = useState<{ totalPoints: number; level: number; pointsToNextLevel: number; levelProgress: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

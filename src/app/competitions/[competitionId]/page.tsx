@@ -50,7 +50,6 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
     );
   }
 
-  const timeRemaining = competition.deadline.getTime() - Date.now();
 
   return (
     <div className="min-h-screen">

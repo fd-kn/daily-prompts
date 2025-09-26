@@ -3,10 +3,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { auth, db } from '../../lib/firebase';
-import { onAuthStateChanged, User, deleteUser } from 'firebase/auth';
-import { doc, getDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function Settings() {
   const [user, setUser] = useState<User | null>(null);
@@ -17,7 +16,6 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [showFinalConfirm, setShowFinalConfirm] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -82,15 +80,15 @@ export default function Settings() {
       // Redirect immediately to home page
       window.location.href = '/';
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting account:', error);
-      if (error.code === 'auth/popup-closed-by-user') {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/popup-closed-by-user') {
         setError('Account deletion cancelled. Please try again.');
-      } else if (error.code === 'auth/user-mismatch') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/user-mismatch') {
         setError('Please select the same Google account you used to create this account.');
-      } else if (error.code === 'auth/credential-already-in-use') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/credential-already-in-use') {
         setError('This Google account is already associated with another account.');
-      } else if (error.code === 'auth/too-many-requests') {
+      } else if (error && typeof error === 'object' && 'code' in error && error.code === 'auth/too-many-requests') {
         setError('Too many failed attempts. Please try again later.');
       } else {
         setError('Failed to delete account. Please try again.');

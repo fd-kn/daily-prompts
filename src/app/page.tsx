@@ -10,7 +10,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import UsernameSetupModal from '../components/UsernameSetupModal';
 
 export default function Home() {
-  const [dailyPrompt, setDailyPrompt] = useState(getDailyPrompt('micro'));
+  const [dailyPrompt] = useState(getDailyPrompt('micro'));
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   // Update the state and useEffect to fetch username
@@ -186,7 +186,7 @@ export default function Home() {
             <div className="card p-2.5 sm:p-3 inline-block max-w-2xl w-full mx-1 sm:mx-0 soft-border">
 
               <p className="text-warm-text font-medium text-xs sm:text-sm mb-1.5 sm:mb-2">
-                Today's prompt:
+                Today&apos;s prompt:
               </p>
               <div className="mb-2 sm:mb-3">
                 <h3 className="text-sm sm:text-base text-warm-text font-semibold leading-relaxed mb-1.5">{dailyPrompt.text}</h3>
@@ -238,7 +238,7 @@ export default function Home() {
                 href="/write-story"
                 className="inline-block btn-secondary glow-on-hover text-xs sm:text-sm font-medium w-full sm:w-auto text-center py-2 sm:py-1.5 px-4 sm:px-3"
               >
-                Start Today's Challenge
+                Start Today&apos;s Challenge
               </Link>
             </motion.div>
             
@@ -251,7 +251,7 @@ export default function Home() {
                 href="/daily-challenges"
                 className="inline-block btn-secondary glow-on-hover text-xs sm:text-sm font-medium w-full sm:w-auto text-center py-2 sm:py-1.5 px-4 sm:px-3"
               >
-                View Today's Entries
+                View Today&apos;s Entries
               </Link>
             </motion.div>
           </motion.div>

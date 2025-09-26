@@ -8,8 +8,8 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import Link from 'next/link';
 import LogoutConfirmModal from '../../components/LogoutConfirmModal';
-import { getUserCoins } from '../../lib/coinSystem';
 import UsernameSetupModal from '../../components/UsernameSetupModal';
+import Image from 'next/image';
 
 interface UserProfile {
   username: string;
@@ -43,7 +43,6 @@ export default function Profile() {
   const [userCoins, setUserCoins] = useState<{ totalCoins: number; storiesCompleted: number; badgesEarned: number } | null>(null);
   const [userBadges, setUserBadges] = useState<{ badges: Array<{ earned: boolean }> } | null>(null);
   const [showUsernameSetup, setShowUsernameSetup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -210,7 +209,7 @@ export default function Profile() {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      const img = document.createElement('img');
 
       img.onload = () => {
         // Calculate new dimensions (max 300x300 for profile pictures)
@@ -274,8 +273,6 @@ export default function Profile() {
       // Update original profile with saved data
       setOriginalProfile(profile);
       setIsEditing(false);
-      setSuccessMessage('Profile updated successfully!');
-      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Error saving profile:', error);
       setError('Failed to update profile. Please try again.');
@@ -358,9 +355,11 @@ export default function Profile() {
             <div className="relative inline-block">
               <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-card-hover border-4 border-border-color">
                 {profile.profilePicture ? (
-                  <img
+                  <Image
                     src={profile.profilePicture}
                     alt="Profile"
+                    width={128}
+                    height={128}
                     className="w-full h-full object-cover"
                   />
                 ) : (

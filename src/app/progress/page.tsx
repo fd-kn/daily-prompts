@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getUserCoins, getUserBadges, BADGE_DEFINITIONS, getBadgeColor, COIN_REWARDS } from '../../lib/coinSystem';
+import { BADGE_DEFINITIONS, getBadgeColor, COIN_REWARDS } from '../../lib/coinSystem';
 import { getUserId } from '../../lib/userUtils';
 import { auth } from '../../lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -11,10 +11,9 @@ import { db } from '../../lib/firebase';
 import Link from 'next/link';
 
 export default function ProgressPage() {
-  const [userCoins, setUserCoins] = useState<any>(null);
-  const [userBadges, setUserBadges] = useState<any>(null);
+  const [userCoins, setUserCoins] = useState<{ totalCoins: number; storiesCompleted: number; badgesEarned: number; competitionsParticipated?: number; competitionsWon?: number } | null>(null);
+  const [userBadges, setUserBadges] = useState<{ badges: Array<{ id: string; earned: boolean; earnedDate?: any }> } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     let coinsUnsubscribe: (() => void) | null = null;
@@ -22,7 +21,6 @@ export default function ProgressPage() {
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
       
       // Clean up previous listeners
       if (coinsUnsubscribe) coinsUnsubscribe();
@@ -75,7 +73,13 @@ export default function ProgressPage() {
         if (doc.exists()) {
           const coinsData = doc.data();
           console.log('💰 Coins updated:', coinsData);
-          setUserCoins(coinsData);
+          setUserCoins({
+            totalCoins: coinsData.totalCoins || 0,
+            storiesCompleted: coinsData.storiesCompleted || 0,
+            badgesEarned: coinsData.badgesEarned || 0,
+            competitionsParticipated: coinsData.competitionsParticipated || 0,
+            competitionsWon: coinsData.competitionsWon || 0
+          });
         } else {
           console.log('💰 No coins data found, creating default');
           setUserCoins({
@@ -90,7 +94,9 @@ export default function ProgressPage() {
         if (doc.exists()) {
           const badgesData = doc.data();
           console.log('🏆 Badges updated:', badgesData);
-          setUserBadges(badgesData);
+          setUserBadges({
+            badges: badgesData.badges || []
+          });
         } else {
           console.log('🏆 No badges data found, creating default');
           setUserBadges({
@@ -149,7 +155,7 @@ export default function ProgressPage() {
     );
   }
 
-  const earnedBadges = userBadges?.badges?.filter((badge: any) => badge.earned) || [];
+  const earnedBadges = userBadges?.badges?.filter((badge) => badge.earned) || [];
   const totalBadges = BADGE_DEFINITIONS.length;
 
   return (
@@ -226,7 +232,7 @@ export default function ProgressPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {BADGE_DEFINITIONS.map((badgeDef, index) => {
-                const earnedBadge = earnedBadges.find((b: any) => b.id === badgeDef.id);
+                const earnedBadge = earnedBadges.find((b) => b.id === badgeDef.id);
                 const isEarned = !!earnedBadge;
                 
                 return (

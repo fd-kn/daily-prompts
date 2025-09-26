@@ -90,7 +90,7 @@ export default function ShopPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between mb-8 sm:mb-12 gap-4">
             <div className="hidden sm:block flex-1"></div>
             <div className="flex-1 text-center">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-warm-text mb-3 sm:mb-4">Writer's Shop</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-warm-text mb-3 sm:mb-4">Writer&apos;s Shop</h1>
               <p className="text-text-secondary text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">
                 Please note that these prices and what these memberships include are still being decided so they will probably change.
               </p>
@@ -204,7 +204,7 @@ export default function ShopPage() {
               <div className="card p-4 sm:p-6 soft-border">
                 <h3 className="font-semibold text-warm-text mb-2 text-sm sm:text-base">Can I cancel my membership?</h3>
                 <p className="text-xs sm:text-sm text-text-secondary">
-                  Yes, you can cancel your membership at any time. You'll continue to have access to premium features until the end of your current billing period.
+                  Yes, you can cancel your membership at any time. You&apos;ll continue to have access to premium features until the end of your current billing period.
                 </p>
               </div>
               <div className="card p-4 sm:p-6 soft-border">
