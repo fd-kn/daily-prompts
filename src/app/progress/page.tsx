@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 import { BADGE_DEFINITIONS, getBadgeColor, COIN_REWARDS } from '../../lib/coinSystem';
 import { getUserId } from '../../lib/userUtils';
 import { auth } from '../../lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import Link from 'next/link';
 
 export default function ProgressPage() {
   const [userCoins, setUserCoins] = useState<{ totalCoins: number; storiesCompleted: number; badgesEarned: number; competitionsParticipated?: number; competitionsWon?: number } | null>(null);
-  const [userBadges, setUserBadges] = useState<{ badges: Array<{ id: string; earned: boolean; earnedDate?: any }> } | null>(null);
+  const [userBadges, setUserBadges] = useState<{ badges: Array<{ id: string; earned: boolean; earnedDate?: Date | { toDate(): Date } | null }> } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -254,7 +254,7 @@ export default function ProgressPage() {
                         <p className="text-xs text-text-secondary line-clamp-2">{badgeDef.description}</p>
                         {isEarned && earnedBadge.earnedDate && (
                           <p className="text-xs text-green-600 mt-1">
-                            Earned {(earnedBadge.earnedDate.toDate ? earnedBadge.earnedDate.toDate() : new Date(earnedBadge.earnedDate)).toLocaleDateString()}
+                            Earned {earnedBadge.earnedDate instanceof Date ? earnedBadge.earnedDate.toLocaleDateString() : earnedBadge.earnedDate.toDate().toLocaleDateString()}
                           </p>
                         )}
                       </div>
