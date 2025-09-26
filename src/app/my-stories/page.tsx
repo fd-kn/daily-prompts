@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { collection, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { getUserId } from '../../lib/userUtils';
-import { updateUserCoins } from '../../lib/coinSystem';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Link from 'next/link';
 
@@ -27,7 +26,6 @@ export default function MyStories() {
   const [activeTab, setActiveTab] = useState<'private' | 'published'>('private');
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [modeFilter, setModeFilter] = useState<string>('all');
-  const [deletingStory, setDeletingStory] = useState<string | null>(null);
   const [editingStory, setEditingStory] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editStory, setEditStory] = useState('');
@@ -37,34 +35,7 @@ export default function MyStories() {
   const [actionStoryId, setActionStoryId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    console.log('🔐 Setting up auth listener...');
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('🔐 Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
-      console.log('👤 User UID:', user?.uid);
-      setCurrentUser(user);
-      
-      if (user) {
-        console.log('✅ User authenticated, loading stories with Firebase UID');
-        loadStories(user.uid);
-      } else {
-        console.log('👤 User not authenticated, using anonymous ID');
-        // If not authenticated, use anonymous ID
-        const anonymousUserId = getUserId();
-        console.log('🆔 Anonymous user ID:', anonymousUserId);
-        if (anonymousUserId) {
-          loadStories(anonymousUserId);
-        } else {
-          console.log('❌ No anonymous user ID found');
-          setLoading(false);
-        }
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const loadStories = async (userId?: string) => {
+  const loadStories = useCallback(async (userId?: string) => {
     const targetUserId = userId || currentUser?.uid;
     console.log('🔍 Loading stories for user ID:', targetUserId);
     console.log('👤 Current user:', currentUser?.uid);
@@ -110,21 +81,45 @@ export default function MyStories() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser]);
+
+  useEffect(() => {
+    console.log('🔐 Setting up auth listener...');
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('🔐 Auth state changed:', user ? 'Authenticated' : 'Not authenticated');
+      console.log('👤 User UID:', user?.uid);
+      setCurrentUser(user);
+      
+      if (user) {
+        console.log('✅ User authenticated, loading stories with Firebase UID');
+        loadStories(user.uid);
+      } else {
+        console.log('👤 User not authenticated, using anonymous ID');
+        // If not authenticated, use anonymous ID
+        const anonymousUserId = getUserId();
+        console.log('🆔 Anonymous user ID:', anonymousUserId);
+        if (anonymousUserId) {
+          loadStories(anonymousUserId);
+        } else {
+          console.log('❌ No anonymous user ID found');
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [loadStories]);
 
   const handleDeleteStory = async (storyId: string) => {
     if (!confirm('Are you sure you want to delete this story? This action cannot be undone.')) {
       return;
     }
 
-    setDeletingStory(storyId);
     try {
       await deleteDoc(doc(db, 'stories', storyId));
       setStories(prev => prev.filter(story => story.id !== storyId));
     } catch (error) {
       console.error('Error deleting story:', error);
-    } finally {
-      setDeletingStory(null);
     }
   };
 
@@ -146,11 +141,6 @@ export default function MyStories() {
     }
   };
 
-  const handleEditStory = (story: Story) => {
-    setEditingStory(story.id);
-    setEditTitle(story.title);
-    setEditStory(story.story);
-  };
 
   const handleSaveEdit = async (storyId: string) => {
     try {
@@ -185,20 +175,6 @@ export default function MyStories() {
     setEditStory('');
   };
 
-  const handlePublishClick = (storyId: string) => {
-    setActionStoryId(storyId);
-    setShowPublishModal(true);
-  };
-
-  const handleUnpublishClick = (storyId: string) => {
-    setActionStoryId(storyId);
-    setShowUnpublishModal(true);
-  };
-
-  const handleDeleteClick = (storyId: string) => {
-    setActionStoryId(storyId);
-    setShowDeleteModal(true);
-  };
 
   const confirmPublish = async () => {
     if (actionStoryId) {
@@ -250,7 +226,6 @@ export default function MyStories() {
       const storyDate = story.createdAt.toDateString();
       const today = new Date().toDateString();
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
-      const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toDateString();
 
       switch (dateFilter) {
         case 'today':

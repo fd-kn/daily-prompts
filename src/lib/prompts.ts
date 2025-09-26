@@ -49,7 +49,7 @@ export interface Prompt {
   };
   
   // For testing purposes - allows simulating different dates
-  let testDate: Date | null = null;
+  const testDate: Date | null = null;
   
   export function getDailyPrompt(competitionId: string): Prompt {
     const competitionPrompts = prompts[competitionId as keyof typeof prompts] || prompts.micro;

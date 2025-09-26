@@ -35,7 +35,7 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Competition Not Found</h1>
-          <p className="text-gray-600 mb-6 text-sm sm:text-base">The competition you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-6 text-sm sm:text-base">The competition you&apos;re looking for doesn&apos;t exist.</p>
           <Link href="/competitions">
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -51,7 +51,6 @@ export default function CompetitionDetailsPage({ params }: { params: Promise<{ c
   }
 
   const timeRemaining = competition.deadline.getTime() - Date.now();
-  const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
 
   return (
     <div className="min-h-screen">

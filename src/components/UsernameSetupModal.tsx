@@ -100,7 +100,7 @@ export default function UsernameSetupModal({ isOpen, onComplete, userId }: Usern
                 transition={{ delay: 0.4 }}
                 className="text-text-secondary leading-relaxed"
               >
-                Let's set up your username! Don't worry - you can change it anytime in your profile.
+                Let&apos;s set up your username! Don&apos;t worry - you can change it anytime in your profile.
               </motion.p>
 
               <form onSubmit={handleSubmit} className="space-y-4">

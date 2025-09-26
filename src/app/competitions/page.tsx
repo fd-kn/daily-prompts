@@ -57,7 +57,7 @@ export default function CompetitionsPage() {
             </motion.div>
             
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-warm-text mb-4 sm:mb-6">
-              What's Coming:
+              What&apos;s Coming:
             </h2>
             
             <div className="space-y-3 sm:space-y-4 text-left">
