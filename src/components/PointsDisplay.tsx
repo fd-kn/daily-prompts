@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getUserProgress, calculateLevelProgress, getLevelBadgeColor, getLevelIcon } from '../lib/pointsSystem';
+import { getUserProgress, calculateLevelProgress, getLevelBadgeColor, getLevelIcon, UserProgress } from '../lib/pointsSystem';
 import { getUserId } from '../lib/userUtils';
 import Link from 'next/link';
 
 export default function PointsDisplay() {
-  const [progress, setProgress] = useState<{ totalPoints: number; level: number; pointsToNextLevel: number; levelProgress: number } | null>(null);
+  const [progress, setProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
