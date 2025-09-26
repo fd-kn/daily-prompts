@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { auth } from '../../lib/firebase';
@@ -37,7 +37,7 @@ const competitions: { [key: string]: Competition } = {
 };
 
 
-export default function WriteCompetition() {
+function WriteCompetitionContent() {
   const [title, setTitle] = useState("");
   const [story, setStory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -467,5 +467,20 @@ export default function WriteCompetition() {
         </AnimatePresence>
         </div>
     </div>
+  );
+}
+
+export default function WriteCompetition() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl mb-4">⚡</div>
+          <p className="text-text-secondary">Loading...</p>
+        </div>
+      </div>
+    }>
+      <WriteCompetitionContent />
+    </Suspense>
   );
 } 

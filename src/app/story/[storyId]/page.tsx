@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use, useCallback } from "react";
+import { useEffect, useState, use, useCallback, Suspense } from "react";
 import { doc, getDoc, updateDoc, deleteDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,7 +35,7 @@ interface Comment {
   authorName?: string;
 }
 
-export default function StoryPage({ params }: { params: Promise<{ storyId: string }> }) {
+function StoryPageContent({ params }: { params: Promise<{ storyId: string }> }) {
   const { storyId } = use(params);
   const searchParams = useSearchParams();
   const fromSection = searchParams.get('from');
@@ -866,5 +866,20 @@ export default function StoryPage({ params }: { params: Promise<{ storyId: strin
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function StoryPage({ params }: { params: Promise<{ storyId: string }> }) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl mb-4">⚡</div>
+          <p className="text-text-secondary">Loading...</p>
+        </div>
+      </div>
+    }>
+      <StoryPageContent params={params} />
+    </Suspense>
   );
 }
