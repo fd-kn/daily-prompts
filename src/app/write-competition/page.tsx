@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { auth } from '../../lib/firebase';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getPromptByCategory } from '../../lib/prompts';
 
 interface Competition {
   id: string;
@@ -37,16 +36,6 @@ const competitions: { [key: string]: Competition } = {
   }
 };
 
-const genres: { [key: string]: string } = {
-  mystery: 'Mystery',
-  fantasy: 'Fantasy',
-  'sci-fi': 'Science Fiction',
-  romance: 'Romance',
-  horror: 'Horror',
-  drama: 'Drama',
-  adventure: 'Adventure',
-  thriller: 'Thriller'
-};
 
 export default function WriteCompetition() {
   const [title, setTitle] = useState("");
@@ -71,7 +60,7 @@ export default function WriteCompetition() {
     text: promptText, 
     category: promptCategory || 'General',
     description: promptDescription 
-  } : (genre && competitionId ? getPromptByCategory(competitionId, genre) : null);
+  } : null;
 
   useEffect(() => {
     if (mode === 'timed' && competition) {
@@ -133,19 +122,19 @@ export default function WriteCompetition() {
     }
   };
 
-  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
     if (hasUnsavedChanges()) {
       e.preventDefault();
       e.returnValue = '';
     }
-  };
+  }, [title, story, mode]);
 
   useEffect(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [title, story, mode]);
+  }, [handleBeforeUnload]);
 
   const handleSubmit = async () => {
     setShowConfirm(false);

@@ -46,8 +46,8 @@ export default function CasualPage() {
   const [draftStories, setDraftStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'create' | 'drafts'>('create');
-  const [selectedCompetition, setSelectedCompetition] = useState<any>(null);
-  const [currentPrompt, setCurrentPrompt] = useState<any>(null);
+  const [selectedCompetition, setSelectedCompetition] = useState<typeof competitions[0] | null>(null);
+  const [currentPrompt, setCurrentPrompt] = useState<{ text: string; description?: string } | null>(null);
   const [showPromptSelection, setShowPromptSelection] = useState(false);
   
   const searchParams = useSearchParams();
@@ -90,7 +90,7 @@ export default function CasualPage() {
     }
   };
 
-  const handleCompetitionSelect = (competition: any) => {
+  const handleCompetitionSelect = (competition: typeof competitions[0]) => {
     setSelectedCompetition(competition);
     setCurrentPrompt(getRandomPrompt(competition.id));
     setShowPromptSelection(true);
@@ -102,83 +102,6 @@ export default function CasualPage() {
     }
   };
 
-  const handleAcceptPrompt = () => {
-    if (selectedCompetition && currentPrompt) {
-      const params = new URLSearchParams({
-        competition: selectedCompetition.id,
-        mode: 'casual',
-        prompt: currentPrompt.text,
-        category: currentPrompt.category
-      });
-      if (currentPrompt.description) {
-        params.append('description', currentPrompt.description);
-      }
-      router.push(`/write-competition?${params.toString()}`);
-    }
-  };
-
-  const handleBackToSelection = () => {
-    setShowPromptSelection(false);
-    setSelectedCompetition(null);
-    setCurrentPrompt(null);
-  };
-
-  const renderStoryCard = (story: Story, isDraft: boolean = false) => (
-    <motion.div 
-      key={story.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.01, y: -2 }}
-      className="card p-6"
-    >
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <Link href={`/story/${story.id}`} className="block cursor-pointer">
-            <h3 className="font-bold text-xl text-warm-text hover:text-muted-amber transition-colors duration-200 mb-3">
-              {story.title}
-            </h3>
-          </Link>
-          
-          <div className="flex flex-wrap items-center gap-4 text-sm text-text-secondary mb-3">
-            <span className="bg-gradient-primary text-warm-white px-2 py-1 rounded-full font-medium">
-              Casual
-            </span>
-            {isDraft && (
-              <span className="bg-gradient-secondary text-warm-text px-2 py-1 rounded-full font-medium">
-                Draft
-              </span>
-            )}
-          </div>
-          
-          <div className="text-sm text-text-muted mb-3">
-            <span>Created on {story.createdAt.toLocaleDateString()} at {story.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          
-          {story.promptText && (
-            <div className="text-sm text-text-secondary">
-              <p className="font-medium text-warm-text mb-1">Prompt: {story.promptText}</p>
-              {story.promptDescription && (
-                <p className="text-text-muted text-xs">{story.promptDescription}</p>
-              )}
-            </div>
-          )}
-        </div>
-        
-        {isDraft && (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="btn-secondary glow-on-hover ml-4"
-            onClick={() => router.push(`/story/${story.id}`)}
-          >
-            Edit
-          </motion.button>
-        )}
-      </div>
-    </motion.div>
-  );
 
   return (
     <div className="min-h-screen">

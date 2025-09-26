@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import Link from 'next/link';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface Story {
   id: string;
@@ -26,11 +26,8 @@ export default function ReadPage() {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [modeFilter, setModeFilter] = useState<string>('all');
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, () => {
       loadStories();
     });
 

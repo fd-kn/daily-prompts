@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { auth, db } from '../lib/firebase';
@@ -212,9 +213,11 @@ export default function Navbar() {
                       className="flex items-center gap-3 p-3 rounded-full hover:bg-card-hover transition-colors"
                     >
                       {userProfile.profilePicture ? (
-                        <img
+                        <Image
                           src={userProfile.profilePicture}
                           alt="Profile"
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full object-cover"
                         />
                       ) : (

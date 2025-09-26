@@ -63,7 +63,7 @@ export default function LogoutConfirmModal({ isOpen, onClose }: LogoutConfirmMod
                 transition={{ delay: 0.4 }}
                 className="text-text-secondary leading-relaxed"
               >
-                Are you sure you want to log out? You'll need to sign in again to access your profile and saved stories.
+                Are you sure you want to log out? You&apos;ll need to sign in again to access your profile and saved stories.
               </motion.p>
 
               <motion.div

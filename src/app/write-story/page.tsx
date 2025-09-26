@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { collection, addDoc, query, where, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import Link from 'next/link';
@@ -68,7 +68,7 @@ export default function WriteStory() {
     return () => clearInterval(timer);
   }, []);
 
-  const checkSubmission = async () => {
+  const checkSubmission = useCallback(async () => {
     // Use authenticated user ID if available, otherwise use anonymous ID
     const userId = currentUser ? currentUser.uid : getUserId();
     if (!userId) return;
@@ -109,9 +109,9 @@ export default function WriteStory() {
     } catch (error) {
       console.error('Error checking submission:', error);
     }
-  };
+  }, [currentUser]);
 
-  const debugSubmissionStatus = async () => {
+  const debugSubmissionStatus = useCallback(async () => {
     const userId = currentUser ? currentUser.uid : getUserId();
     if (!userId) return;
     
@@ -137,7 +137,7 @@ export default function WriteStory() {
     } catch (error) {
       console.error('Debug error:', error);
     }
-  };
+  }, [currentUser]);
 
   useEffect(() => {
     // Check submission status when user changes or on initial load
@@ -145,7 +145,7 @@ export default function WriteStory() {
       debugSubmissionStatus();
       checkSubmission();
     }
-  }, [currentUser]);
+  }, [currentUser, checkSubmission, debugSubmissionStatus]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -189,7 +189,7 @@ export default function WriteStory() {
         });
       } else {
         // Fallback: create new story if no submittedStoryId
-        const storyRef = await addDoc(collection(db, 'stories'), {
+        await addDoc(collection(db, 'stories'), {
           title: title.trim(),
           story: story.trim(),
           authorName: authorName,
@@ -375,12 +375,17 @@ export default function WriteStory() {
                   await signInWithPopup(auth, provider);
                   // Redirect to homepage after successful login
                   router.push('/');
-                } catch (error: any) {
+                } catch (error: unknown) {
                   // Handle specific Firebase auth errors
-                  if (error.code === 'auth/cancelled-popup-request') {
-                    console.log('Login popup was cancelled');
-                  } else if (error.code === 'auth/popup-closed-by-user') {
-                    console.log('Login popup was closed by user');
+                  if (error && typeof error === 'object' && 'code' in error) {
+                    const firebaseError = error as { code: string };
+                    if (firebaseError.code === 'auth/cancelled-popup-request') {
+                      console.log('Login popup was cancelled');
+                    } else if (firebaseError.code === 'auth/popup-closed-by-user') {
+                      console.log('Login popup was closed by user');
+                    } else {
+                      console.error('Error signing in with Google:', error);
+                    }
                   } else {
                     console.error('Error signing in with Google:', error);
                   }
@@ -401,7 +406,7 @@ export default function WriteStory() {
             </motion.button>
             
             <p className="text-sm text-text-muted mt-6">
-              Don't worry - you can still read all the amazing stories without logging in!
+              Don&apos;t worry - you can still read all the amazing stories without logging in!
             </p>
           </motion.div>
         </div>
@@ -445,7 +450,7 @@ export default function WriteStory() {
             >
               <div className="text-center space-y-4">
                 <div className="text-4xl mb-4">📝</div>
-                <p className="text-xl font-medium text-warm-text">You've already submitted a story today!</p>
+                <p className="text-xl font-medium text-warm-text">You&apos;ve already submitted a story today!</p>
                 <p className="text-base text-text-secondary">You can write another story, but you won't earn additional points for today.</p>
                 <div className="mt-6 space-y-3">
                   <Link 

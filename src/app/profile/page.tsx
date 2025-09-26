@@ -8,7 +8,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import Link from 'next/link';
 import LogoutConfirmModal from '../../components/LogoutConfirmModal';
-import { getUserCoins, getUserBadges } from '../../lib/coinSystem';
+import { getUserCoins } from '../../lib/coinSystem';
 import UsernameSetupModal from '../../components/UsernameSetupModal';
 
 interface UserProfile {
@@ -40,8 +40,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [userCoins, setUserCoins] = useState<any>(null);
-  const [userBadges, setUserBadges] = useState<any>(null);
+  const [userCoins, setUserCoins] = useState<{ totalCoins: number; storiesCompleted: number; badgesEarned: number } | null>(null);
+  const [userBadges, setUserBadges] = useState<{ badges: Array<{ earned: boolean }> } | null>(null);
   const [showUsernameSetup, setShowUsernameSetup] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
@@ -91,13 +91,16 @@ export default function Profile() {
           if (doc.exists()) {
             const coinsData = doc.data();
             console.log('💰 Profile: Coins updated:', coinsData);
-            setUserCoins(coinsData);
+            setUserCoins({
+              totalCoins: coinsData.totalCoins || 0,
+              storiesCompleted: coinsData.storiesCompleted || 0,
+              badgesEarned: coinsData.badgesEarned || 0
+            });
           } else {
             console.log('💰 Profile: No coins data found, creating default');
             setUserCoins({
               totalCoins: 0,
               storiesCompleted: 0,
-
               badgesEarned: 0
             });
           }
@@ -107,7 +110,9 @@ export default function Profile() {
           if (doc.exists()) {
             const badgesData = doc.data();
             console.log('🏆 Profile: Badges updated:', badgesData);
-            setUserBadges(badgesData);
+            setUserBadges({
+              badges: badgesData.badges || []
+            });
           } else {
             console.log('🏆 Profile: No badges data found, creating default');
             setUserBadges({
@@ -485,7 +490,7 @@ export default function Profile() {
                 <div className="text-2xl sm:text-3xl mb-2">🏆</div>
                 <p className="text-xs sm:text-sm text-text-secondary">Badges Earned</p>
                 <p className="font-semibold text-warm-text text-sm sm:text-base">
-                  {userBadges?.badges?.filter((badge: any) => badge.earned).length || 0} badges
+                  {userBadges?.badges?.filter((badge) => badge.earned).length || 0} badges
                 </p>
               </div>
             </div>

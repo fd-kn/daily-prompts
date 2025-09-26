@@ -73,7 +73,7 @@ export default function GoogleLoginModal({ isOpen, onClose, onSuccess }: GoogleL
                 transition={{ delay: 0.4 }}
                 className="text-text-secondary leading-relaxed"
               >
-                Great job completing today's challenge! Sign in with Google to save your progress, 
+                Great job completing today&apos;s challenge! Sign in with Google to save your progress, 
                 track your writing streak, and access your story history across devices.
               </motion.p>
 
