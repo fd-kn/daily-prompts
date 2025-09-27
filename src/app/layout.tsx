@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Story Prompt Platform",
+  title: "StoryMode",
   description: "Write stories based on daily prompts",
 };
 
